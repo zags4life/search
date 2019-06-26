@@ -5,28 +5,7 @@ import logging
 
 from .fields import QueryField
 
-stackdepth = 0
-
 logger = logging.getLogger(__name__)
-
-def stacktrace(func):
-    def print_stack(self, *args, **kwargs):
-        global stackdepth
-
-        try:
-            logger.debug('{0}{1} {2}'.format('    ' * stackdepth, '>>>', str(self)))
-
-            stackdepth += 1
-            return func(self, *args, **kwargs)
-        finally:
-            stackdepth -= 1
-            logger.debug('{0}{1} {2}'.format('    ' * stackdepth, '<<<', str(self)))
-
-    def wrapper(self, *args, **kwargs):
-        if __debug__:
-            return print_stack(self, *args, **kwargs)
-        return func(self, *args, **kwargs)
-    return wrapper
 
 class Condition(ABC):
     @abstractmethod
@@ -38,7 +17,6 @@ class NotCondition(Condition):
         super().__init__()
         self.condition = condition
 
-    @stacktrace
     def __call__(self, values):
         return values - (values & self.condition(values))
 
@@ -51,7 +29,6 @@ class AndCondition(Condition):
         self.condition1 = c1
         self.condition2 = c2
 
-    @stacktrace
     def __call__(self, values):
         return self.condition1(values) & self.condition2(values)
 
@@ -64,7 +41,6 @@ class OrCondition(Condition):
         self.condition1 = c1
         self.condition2 = c2
 
-    @stacktrace
     def __call__(self, values):
         return self.condition1(values) | self.condition2(values)
 
@@ -105,7 +81,6 @@ class Expression(Condition):
 class EqualityExpression(Expression):
     OPERATOR = '='
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,
@@ -114,7 +89,6 @@ class EqualityExpression(Expression):
 class LikeExpression(Expression):
     OPERATOR = 'LIKE'
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,
@@ -123,7 +97,6 @@ class LikeExpression(Expression):
 class LessThanExpression(Expression):
     OPERATOR = '<'
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,
@@ -132,7 +105,6 @@ class LessThanExpression(Expression):
 class LessThanOrEqualExpression(Expression):
     OPERATOR = '<='
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,
@@ -141,7 +113,6 @@ class LessThanOrEqualExpression(Expression):
 class GreaterThanExpression(Expression):
     OPERATOR = '>'
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,
@@ -150,7 +121,6 @@ class GreaterThanExpression(Expression):
 class GreaterThanOrEqualExpression(Expression):
     OPERATOR = '>='
 
-    @stacktrace
     def __call__(self, values):
         return self._get_values(
             values=values,

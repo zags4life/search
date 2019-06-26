@@ -49,13 +49,6 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
                 "already of the correct type".format(obj.__class__.__name__)
             )
 
-    def __getattr__(self, attr):
-        for field in self.__fields:
-            if field.name == attr:
-                return field.value
-        raise AttributeError("'ImplicitlyConvertedSearchDataProvider' object has no"
-            " attribute '{}'".format(attr))
-
     @property
     def fields(self):
         return self.__fields

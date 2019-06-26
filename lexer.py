@@ -5,16 +5,6 @@ from .conditions import *
 
 logger = logging.getLogger(__name__)
 
-
-from functools import wraps
-
-def print_name(func):
-    @wraps(func)
-    def wrapper(t):
-        print('{}({})'.format(func.__name__, str(t)))
-        return func(t)
-    return wrapper
-
 expression_map = {
     '=': EqualityExpression,
     '<': LessThanExpression,
@@ -60,9 +50,8 @@ from .ply import lex, yacc
 
 # Precedence rules for the arithmetic operators
 precedence = (
-    # ('like', 'LIKE', 'KEY_VALUE'),
+    ('right', 'NOT', '!'),
     ('left', 'AND', 'OR'),
-    ('left', 'NOT', '!'),
 )
 
 def p_expression_token(p):
@@ -79,16 +68,14 @@ def p_expression_token(p):
     operand = tokens['operand']
 
     if not rhs:
-        logger.warning('bad')
+        logger.warning('Invalid key value expressions {}'.format(p[1]))
         return
-        # logger.warning("Expression '{}' has an empty rhs value.  Implicitly converting to '{} like .*'".format(p[1], lhs))
-        # operand = 'like'
-        # rhs = '.*'
-
     operand = operand.strip().lower()
 
     if operand == '><':
+        logger.warning('Invalid key value expressions {}'.format(p[1]))
         return
+
     if operand == '<>':
         p[0] = NotCondition(expression_map['='](lhs=lhs, rhs=rhs))
     else:
