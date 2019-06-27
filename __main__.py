@@ -12,7 +12,7 @@ if __name__ == '__main__':
     if sys.version_info[0] >= 3:
         raw_input = input  # use input() on Python 3
             
-    # logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
     
     parser = ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
@@ -28,4 +28,4 @@ if __name__ == '__main__':
         if args.debug:
             print(str(Query(search_str)))
         else:
-            execute_query(search_str, debug=args.debug)
+            execute_query(search_str.lower().strip(), debug=args.debug)

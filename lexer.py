@@ -5,42 +5,32 @@ from .conditions import *
 
 logger = logging.getLogger(__name__)
 
-
-from functools import wraps
-
-def print_name(func):
-    @wraps(func)
-    def wrapper(t):
-        print('{}({})'.format(func.__name__, str(t)))
-        return func(t)
-    return wrapper
-
-expression_map = {
-    '=': EqualityExpression,
-    '<': LessThanExpression,
-    '>': GreaterThanExpression,
-    'like': LikeExpression,
-    '>=': GreaterThanOrEqualExpression,
-    '<=': LessThanOrEqualExpression
-}
-
-literals = ['=', '>', '<', '!', '(', ')']
-
 tokens = (
-    'KEY_VALUE',
-    'AND',
-    'OR',
+    'NAME',
+    'EQUALS',
+    'NOTEQUALS',
+    'LIKE', 'LT', 'GT', 'LTE', 'GTE',
+    'AND', 'OR',
     'NOT',
+    'LPAREN','RPAREN',
 )
 
 # Tokens
-t_KEY_VALUE = r'(?P<field>[a-zA-Z0-9_.*-]+)\s*(?P<operand>([<>=]{1,2}|((?i)\slike\s)))\s*(?P<value>[a-zA-Z0-9_\\.*\-\+\^\$/\|]*)'
-t_AND = r'(?i)and'
-t_OR = r'(?i)or'
-t_NOT = r'(?i)not'
 
-# Ignored characters
-t_ignore = " \t"
+t_NAME    = r'[a-zA-Z0-9_]+'
+
+t_LT      = r'\s*<\s*'
+t_LTE     = r'\s*<=\s*'
+t_GT      = r'\s*>\s*'
+t_GTE      = r'\s*>=\s*'
+t_EQUALS  = r'\s*=\s*'
+t_NOTEQUALS  = r'\s*!=\s*'
+t_AND     = r'(?i)\s+and\s+'
+t_OR      = r'(?i)\s+or\s+'
+t_LIKE    = r'(?i)\s+like\s+'
+t_NOT     = r'(?i)(!|\s*not\s+)'
+t_LPAREN  = r'\('
+t_RPAREN  = r'\)'
 
 has_error = False
 
@@ -60,59 +50,64 @@ from .ply import lex, yacc
 
 # Precedence rules for the arithmetic operators
 precedence = (
-    # ('like', 'LIKE', 'KEY_VALUE'),
+    ('left', 'LT', 'GT', 'LTE', 'GTE'),
+    ('left', 'EQUALS', 'LIKE', 'NOTEQUALS'),
     ('left', 'AND', 'OR'),
-    ('left', 'NOT', '!'),
+    ('left', 'LPAREN', 'RPAREN'),
+    ('left', 'NOT'),
 )
 
-def p_expression_token(p):
-    '''expression : KEY_VALUE'''
-    tokens = re.search(t_KEY_VALUE, p[1])
-    if not tokens:
-        return
 
-    tokens = tokens.groupdict()
+def p_expression_eq(p):
+    'expression : NAME EQUALS NAME'
+    p[0] = EqualExpression(p[1], p[3])
+    
+def p_expression_neq(p):
+    'expression : NAME NOTEQUALS NAME'
+    p[0] = NotStatement(EqualExpression(p[1], p[3]))
 
-    # Create the expression object
-    lhs = tokens['field']
-    rhs = tokens['value']
-    operand = tokens['operand']
+def p_expression_like(p):
+    'expression : NAME LIKE NAME'
+    p[0] = LikeExpression(p[1].strip(), p[3].strip())
 
-    if not rhs:
-        logger.warning('bad')
-        return
-        # logger.warning("Expression '{}' has an empty rhs value.  Implicitly converting to '{} like .*'".format(p[1], lhs))
-        # operand = 'like'
-        # rhs = '.*'
+def p_expression_lt(p):
+    'expression : NAME LT NAME'
+    p[0] = LessThanExpression(p[1].strip(), p[3].strip())
 
-    operand = operand.strip().lower()
+def p_expression_lte(p):
+    'expression : NAME LTE NAME'
+    p[0] = LessThanOrEqualExpression(p[1].strip(), p[3].strip())
 
-    if operand == '><':
-        return
-    if operand == '<>':
-        p[0] = NotCondition(expression_map['='](lhs=lhs, rhs=rhs))
-    else:
-        p[0] = expression_map[operand](lhs=lhs, rhs=rhs)
+def p_expression_gt(p):
+    'expression : NAME GT NAME'
+    p[0] = GreaterThanExpression(p[1].strip(), p[3].strip())
 
-def p_expression_expr(p):
-    'expression : expression expression'
-    p[0] = AndCondition(p[1], p[2])
+def p_expression_gte(p):
+    'expression : NAME GTE NAME'
+    p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
 
-def p_expression_and(p):
-    'expression : expression AND expression'
-    p[0] = AndCondition(p[1], p[3])
+def p_expr_stmt(p):
+    '''expression : statement'''
+    p[0] = p[1]
 
-def p_expression_or(p):
-    'expression : expression OR expression'
-    p[0] = OrCondition(p[1], p[3])
+def p_statement_and(p):
+    'statement : expression AND expression'
+    p[0] = AndStatement(p[1], p[3])
 
-def p_expression_not(p):
-    '''expression : NOT expression
-                  | "!" expression'''
-    p[0] = NotCondition(p[2])
+def p_statement_expr_expr(p):
+    'statement : expression expression'
+    p[0] = AndStatement(p[1], p[2])
 
-def p_expression_group(p):
-    "expression : '(' expression ')'"
+def p_statement_or(p):
+    'statement : expression OR expression'
+    p[0] = OrStatement(p[1], p[3])
+
+def p_statement_not(p):
+    'statement : NOT expression'
+    p[0] = NotStatement(p[2])
+
+def p_statement_group(p):
+    'statement : LPAREN statement RPAREN'
     p[0] = p[2]
 
 def p_error(p):
@@ -126,6 +121,7 @@ def p_error(p):
 
 def compile(query):
     global has_error
+
     try:
         lex.lex()
         compiled_cond = yacc.yacc().parse(query)
@@ -146,5 +142,7 @@ if __name__ == '__main__':
             s = input('search > ')   # use input() on Python 3
         except EOFError:
             break
+        if s.lower().strip() == 'quit':
+            exit(0)
         result = yacc.parse(s)
         print(result)

@@ -3,6 +3,8 @@
 import logging
 import re
 
+from ..query import InvalidQueryError
+
 logger = logging.getLogger(__name__)
 
 REGISTERED_UNITTESTS = []
@@ -54,6 +56,7 @@ class TestObject(object):
 def execute_query(search_str, dry_run=False, debug=False):
     # from ..conditions import set_debug
     # set_debug(debug)
+
     values = [
         {'x': 1, 'y': 2, 'foo': 3},
         dict(x=1, y=2, foo='bar'),

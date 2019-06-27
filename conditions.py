@@ -33,7 +33,11 @@ class Condition(ABC):
     def __call__(self, values):
         pass
 
-class NotCondition(Condition):
+#################################################
+# Logic statements
+#################################################
+
+class NotStatement(Condition):
     def __init__(self, condition):
         super().__init__()
         self.condition = condition
@@ -45,7 +49,7 @@ class NotCondition(Condition):
     def __str__(self):
         return '[NOT {0.condition}]'.format(self)
 
-class AndCondition(Condition):
+class AndStatement(Condition):
     def __init__(self, c1, c2):
         super().__init__()
         self.condition1 = c1
@@ -58,7 +62,7 @@ class AndCondition(Condition):
     def __str__(self):
         return "[{0.condition1} AND {0.condition2}]".format(self)
 
-class OrCondition(Condition):
+class OrStatement(Condition):
     def __init__(self, c1, c2):
         super().__init__()
         self.condition1 = c1
@@ -70,6 +74,11 @@ class OrCondition(Condition):
 
     def __str__(self):
         return "[{0.condition1} OR {0.condition2}]".format(self)
+
+
+#################################################
+# Arithmetic expressions
+#################################################
 
 class Expression(Condition):
     OPERATOR = None
@@ -102,7 +111,7 @@ class Expression(Condition):
                 results.add(value)
         return results
 
-class EqualityExpression(Expression):
+class EqualExpression(Expression):
     OPERATOR = '='
 
     @stacktrace
