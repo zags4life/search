@@ -17,7 +17,9 @@ tokens = (
 
 # Tokens
 
-t_NAME    = r'[a-zA-Z0-9_]+'
+# t_NAME    = r'[a-zA-Z0-9_\.\+*]+'
+
+t_NAME    = r'[a-zA-Z0-9_\\.*\-\+\^\$/\|]+'
 
 t_LT      = r'\s*<\s*'
 t_LTE     = r'\s*<=\s*'
@@ -61,7 +63,7 @@ precedence = (
 def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
     p[0] = EqualExpression(p[1], p[3])
-    
+
 def p_expression_neq(p):
     'expression : NAME NOTEQUALS NAME'
     p[0] = NotStatement(EqualExpression(p[1], p[3]))
@@ -85,6 +87,10 @@ def p_expression_gt(p):
 def p_expression_gte(p):
     'expression : NAME GTE NAME'
     p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
+
+def p_expression_group(p):
+    'expression : LPAREN expression RPAREN'
+    p[0] = p[2]
 
 def p_expr_stmt(p):
     '''expression : statement'''

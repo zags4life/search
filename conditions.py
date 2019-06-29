@@ -34,7 +34,7 @@ class Condition(ABC):
         pass
 
 #################################################
-# Logic statements
+# Logic Statements
 #################################################
 
 class NotStatement(Condition):
@@ -77,7 +77,7 @@ class OrStatement(Condition):
 
 
 #################################################
-# Arithmetic expressions
+# Arithmetic Expressions
 #################################################
 
 class Expression(Condition):

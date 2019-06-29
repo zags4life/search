@@ -28,4 +28,4 @@ if __name__ == '__main__':
         if args.debug:
             print(str(Query(search_str)))
         else:
-            execute_query(search_str.lower().strip(), debug=args.debug)
+            execute_query(search_str, debug=args.debug)
