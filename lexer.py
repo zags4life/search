@@ -66,7 +66,7 @@ def p_expression_eq(p):
 
 def p_expression_neq(p):
     'expression : NAME NOTEQUALS NAME'
-    p[0] = NotStatement(EqualExpression(p[1], p[3]))
+    p[0] = NotEqualExpression(p[1], p[3])
 
 def p_expression_like(p):
     'expression : NAME LIKE NAME'
