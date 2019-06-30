@@ -45,5 +45,6 @@ def query(query_str, values):
         return list(values)
 
     q = Query(query_str)
-    logger.info(str(q))
+    logger.info("'{}'".format(query_str))
+    logger.info(q)
     return list(q(values))

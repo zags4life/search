@@ -38,6 +38,12 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         #    in the objects __dict__.  For any object that is not callable and does not start with '_',
         #    Create a SearchField object and add it to the list of fields
         elif not isinstance(obj, SearchFieldDataProvider):
+
+            #
+            # BUGBUG: Check the object for properties and use them as fields
+            #         Also verify if the obj has a 'fields' property
+            #
+
             for k,v in obj.__dict__.items():
                 if not k.startswith('_') and not callable(v):
                     self.__fields.append(SearchField(k,v))
