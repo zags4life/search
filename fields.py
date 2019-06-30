@@ -58,6 +58,11 @@ class BaseField(object):
 
     @verify_name_matches
     @convert_type
+    def __ne__(self, other):
+        return self.value != other.value
+
+    @verify_name_matches
+    @convert_type
     def __lt__(self, other):
         return self.value < other.value
 
