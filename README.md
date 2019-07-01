@@ -42,9 +42,9 @@ The equals (`=`) operator tests for equality were as the `like` operator tests f
 
 The _search_ module automatically converts `dict`, `list`, and custom class types to searchable objects.  
 
-For `dict`s, each key/value pair becomes a searchable item where the search field name equals the key and the search field value becomes the value.
+For `dict`, each key/value pair becomes a searchable item where the search field name equals the key and the search field value becomes the value.
 
-For `list`s, the search field name is the list index and the search value is the value at that index.
+For `list`, the search field name is the list index and the search value is the value at that index.
 
 For custom types, all public attributes become searchable key/value pairs.
 
