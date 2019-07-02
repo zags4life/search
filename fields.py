@@ -6,9 +6,20 @@ from datetime import date, datetime
 import logging
 import re
 
-from utils import parse_date
-
 logger = logging.getLogger(__name__)
+
+DATE_FORMATS = [
+    '%m/%d/%y', '%m/%d/%Y',
+    '%m%d%y',' %m%d%Y',
+    '%m%d', '%m/%d'
+]
+
+def Date(date_str):
+    for format in DATE_FORMATS:
+        try:
+            return datetime.strptime(date_str, format)
+        except ValueError:
+            pass
 
 class SearchFieldDataProvider(ABC):
     @abstractproperty
@@ -114,7 +125,7 @@ class QueryField(BaseField):
         # If the value is a date, convert the string value to a date object.
         # Else, convert the string value to the same type as the value
         if isinstance(value, (date, datetime)):
-            self.value = parse_date(self.value)
+            self.value = Date(self.value)
         else:
             self.value = type(value)(self.value)
         return self
