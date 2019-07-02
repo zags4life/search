@@ -1,5 +1,6 @@
 # __init__.py
 
+from datetime import datetime
 import logging
 import re
 
@@ -54,9 +55,6 @@ class TestObject(object):
     __repr__ = __str__
 
 def execute_query(search_str, dry_run=False, debug=False):
-    # from ..conditions import set_debug
-    # set_debug(debug)
-
     values = [
         {'x': 1, 'y': 2, 'foo': 3},
         dict(x=1, y=2, foo='bar'),
@@ -66,9 +64,9 @@ def execute_query(search_str, dry_run=False, debug=False):
         [1,2,3,4],
         TestObject(x=3, y=2, foo='travis'),
         {'name': 'Mike', 'fo0d': 'bar'},
+        {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
     ]
 
-    #values = values * 100
     try:
         q = Query(search_str)
 

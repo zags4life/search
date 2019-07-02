@@ -120,6 +120,15 @@ class EqualExpression(Expression):
             values=values,
             search_func=lambda v: any(f == self.field for f in v.fields))
 
+class NotEqualExpression(Expression):
+    OPERATOR = '!='
+
+    @stacktrace
+    def __call__(self, values):
+        return self._get_values(
+            values=values,
+            search_func=lambda v: any(f != self.field for f in v.fields))
+
 class LikeExpression(Expression):
     OPERATOR = 'LIKE'
 
