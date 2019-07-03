@@ -7,10 +7,10 @@ The _search_ module enables users to quickly and easily query a list of python o
 
 - [Introduction](#introduction)
 - [Grammar](#grammar)
-  * [Equals vs. Like](#sub-heading-1)
-- [Supported Types](#Supported Types)
-  * [Sub-heading](#sub-heading-2)
-    + [Sub-sub-heading](#sub-sub-heading-2)
+  * [Equals vs Like](#equals-vs-like)
+- [Supported Types](#supported-types)
+- [API](#api)
+- [Examples](#examples)
 
 ## Grammar
 
@@ -41,7 +41,7 @@ Output:
 
 The _search_ module enables `=`, `!=`, `‹`, `‹=`, `>`, `>=`, and `like` arithmetic operators.  The `like` operator allows for field values that are regular expressions.
 
-### Equals vs. Like
+### Equals vs Like
 The equals (`=`) operator tests for equality were as the `like` operator tests for likeness using regular expressions.
 
 
@@ -55,8 +55,7 @@ For `list`, the search field name is the list index and the search value is the 
 
 For custom types, all public attributes become searchable key/value pairs.
 
-
-## Entry Point
+## API
 
 The _search_ module API `query` is the main entry point for querying.
 
@@ -75,7 +74,5 @@ def query(query_str, values):
     '''
 ```
 
-
-### Custom Types - SearchDataProvider
-
+## Examples
 TBD
