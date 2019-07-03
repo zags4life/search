@@ -1,8 +1,7 @@
 # fields.py
 
 from abc import ABC, abstractproperty
-import copy
-from datetime import date, datetime
+from datetime import datetime
 import logging
 import re
 

@@ -39,12 +39,3 @@ class Query(object):
 
 class InvalidQueryError(Exception):
     pass
-
-def query(query_str, values):
-    if not query_str:
-        return list(values)
-
-    q = Query(query_str)
-    logger.info("'{}'".format(query_str))
-    logger.info(q)
-    return list(q(values))
