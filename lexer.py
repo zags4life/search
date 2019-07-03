@@ -16,11 +16,7 @@ tokens = (
 )
 
 # Tokens
-
-# t_NAME    = r'[a-zA-Z0-9_\.\+*]+'
-
 t_NAME    = r'[a-zA-Z0-9_\\.*\-\+\^\$/\|]+'
-
 t_LT      = r'\s*<\s*'
 t_LTE     = r'\s*<=\s*'
 t_GT      = r'\s*>\s*'
@@ -64,9 +60,9 @@ def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
     p[0] = EqualExpression(p[1], p[3])
 
-def p_expression_neq(p):
+def p_expression_ne(p):
     'expression : NAME NOTEQUALS NAME'
-    p[0] = NotStatement(EqualExpression(p[1], p[3]))
+    p[0] = NotEqualExpression(p[1], p[3])
 
 def p_expression_like(p):
     'expression : NAME LIKE NAME'
