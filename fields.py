@@ -8,18 +8,41 @@ import re
 
 logger = logging.getLogger(__name__)
 
-DATE_FORMATS = [
-    '%m/%d/%y', '%m/%d/%Y',
-    '%m%d%y',' %m%d%Y',
-    '%m%d', '%m/%d'
-]
+
+DATE_FORMATS = (
+    '%m-%d-%Y', 
+    '%m-%d-%y',
+    '%m/%d/%Y', 
+    '%m/%d/%y',
+    '%m%d%Y', 
+    '%m%d%y',
+    '%m/%d',
+    '%m-%d',
+    '%m%d',
+    '%Y%m%d',
+    '%Y-%m-%d',
+    '%Y/%m/%d',
+    '%y%m%d',
+)
 
 def Date(date_str):
+    if not date_str:
+        return None
+
     for format in DATE_FORMATS:
         try:
-            return datetime.strptime(date_str, format)
+            formatted = datetime.strptime(date_str, format)
+
+            if formatted.year == 1900:
+                formatted = datetime(
+                    year=datetime.now().year,
+                    month=formatted.month,
+                    day=formatted.day)
+            return formatted.date()
         except ValueError:
             pass
+            
+    logger.error("Failed to parse date '{}'".format(date_strs))
 
 class SearchFieldDataProvider(ABC):
     @abstractproperty
