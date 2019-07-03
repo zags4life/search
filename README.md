@@ -26,7 +26,10 @@ The most fundamental expression consists of a key/value pair separated by an ope
 
 The _search_ module enables `=`, `!=`, `‹`, `‹=`, `>`, `>=`, and `like` arithmetic operators.  The `like` operator allows for field values that are regular expressions.
 
-```name = tom```
+For example:
+```
+name = tom
+```
 
 #### Equals vs Like
 The equals (`=`) operator tests for equality were as the `like` operator tests for likeness using regular expressions.
@@ -35,10 +38,12 @@ The equals (`=`) operator tests for equality were as the `like` operator tests f
 Arithmetic expressions can be combine using logical statements and supports `and`, `or`, and `not` (or `!`) logical operators.
 
 For example:
-```name like Tom and age > 25```
-```name like Tom or age != 25```
-```not name like Tom or age != 25```
-```!name like Tom or age != 25```
+```
+name like Tom and age > 25
+name like Tom or age != 25
+not name like Tom or age != 25
+!name like Tom or age != 25
+```
 
 ### Grouping Statements
 
@@ -148,3 +153,4 @@ TestObject(name=Eric, age=34, city='Chicago')
 ```
 
 ### Implementing SearchFieldDataProvider
+TBD
