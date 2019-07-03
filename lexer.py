@@ -27,8 +27,8 @@ t_AND     = r'(?i)\s+and\s+'
 t_OR      = r'(?i)\s+or\s+'
 t_LIKE    = r'(?i)\s+like\s+'
 t_NOT     = r'(?i)(!|\s*not\s+)'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+t_LPAREN  = r'\s*\(\s*'
+t_RPAREN  = r'\s*\)\s*'
 
 has_error = False
 

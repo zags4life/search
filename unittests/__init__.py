@@ -35,12 +35,7 @@ class TestObject(object):
         self.__fields = []
         for k,v in kwargs.items():
             setattr(self, k, v)
-            self.__fields.append(SearchField(k,v))
-
-    @property
-    def fields(self):
-        return self.__fields
-
+            
     def __str__(self):
         values = ['{}={}'.format(k,v) for k,v in self.__dict__.items()
             if not callable(v) and not k.startswith('_')]
@@ -63,8 +58,8 @@ def execute_query(search_str, dry_run=False, debug=False):
         dict(x=3, y=2, foo='gurp'),
         [1,2,3,4],
         TestObject(x=3, y=2, foo='travis'),
-        {'name': 'Mike', 'fo0d': 'bar'},
-        {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
+        {'Name': 'Mike', 'fo0d': 'bar'},
+        {'Name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
     ]
 
     try:
