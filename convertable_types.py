@@ -40,7 +40,6 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         elif not isinstance(obj, SearchFieldDataProvider):
             for k,v in obj.__class__.__dict__.items():
                 if type(v) == property:
-                    # print("'{}'".format(k))
                     self.__fields.append(SearchField(k, getattr(obj, k)))
 
             for k,v in obj.__dict__.items():
