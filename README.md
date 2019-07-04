@@ -37,12 +37,16 @@ The equals (`=`) operator tests for equality were as the `like` operator tests f
 ### Logical Statements
 Arithmetic expressions can be combine using logical statements and supports `and`, `or`, and `not` (or `!`) logical operators.
 
-For example:
+The below are example query strings and illistrate how the string is logically Dissected interrupted by the _search_ module
+
 ```
-name like Tom and age > 25
-name like Tom or age != 25
-not name like Tom or age != 25
-!name like Tom or age != 25
+name like Tom and age > 25  ->  [[((?i)name LIKE Tom) AND ((?i)age > 25)]
+
+name like Tom or Age != 25  ->  [((?i)name LIKE Tom) OR ((?i)age != 25)]
+
+not name like Tom or age != 25  ->  [[NOT ((?i)name LIKE Tom)] OR ((?i)age != 25)]
+
+!name like Tom or age != 25  ->  [[NOT ((?i)name LIKE Tom)] OR ((?i)age != 25)]
 ```
 
 ### Grouping Statements
@@ -51,17 +55,13 @@ Arithmetic expressions and logical statements can be grouped together using pare
 
 For example:
 ```
-(name like Tom and age != 25) or (name = Mike)
-!(name like Tom or age != 25)
+(name like Tom and age != 25) or (name = Mike)  ->  [[[(name LIKE Tom) AND (age != 25)] OR (name = Mike)]
+
+!(name like Tom or age != 25)  ->  [[NOT [(name LIKE Tom) OR (age != 25)]]
 ```
 
-
 ### Case sensitivity
-The grammar is case insensitive for all logical and arithmetic operators, and field names.  The field value case will still be honored.
-
-For example:
-`Name = Tom` and `name = Tom` are functionally equivalent
-`name = Tom` and `name = tom` are _not_ functionally equivalent
+All logical and arithmetic operators are case insensitive.  Field names and value are case sensitive.
 
 
 ## Supported Types
