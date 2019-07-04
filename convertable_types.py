@@ -23,7 +23,7 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         '''
 
         # Save the underlying object as a string for debugging
-        self.__underlying_obj_str = str(obj)
+        self.underlying_obj = obj
         self.__fields = []
 
         # 1) If the object is a dictionary, wrap the key/value pairs as Field objects
@@ -38,36 +38,24 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         #    in the objects __dict__.  For any object that is not callable and does not start with '_',
         #    Create a SearchField object and add it to the list of fields
         elif not isinstance(obj, SearchFieldDataProvider):
-
-            #
-            # BUGBUG: Check the object for properties and use them as fields
-            #         Also verify if the obj has a 'fields' property
-            #
+            for k,v in obj.__class__.__dict__.items():
+                if type(v) == property:
+                    self.__fields.append(SearchField(k, getattr(obj, k)))
 
             for k,v in obj.__dict__.items():
                 if not k.startswith('_') and not callable(v):
                     self.__fields.append(SearchField(k,v))
-
-        # 4) If the object implements SearchFieldDataProvider, raise an error
+            
+        # 4) If the object implements SearchFieldDataProvider
         else:
-            raise AttributeError(
-                "Cannot convert '{}' to SearchFieldDataProvider as it is " \
-                "already of the correct type".format(obj.__class__.__name__)
-            )
-
-    def __getattr__(self, attr):
-        for field in self.__fields:
-            if field.name == attr:
-                return field.value
-        raise AttributeError("'ImplicitlyConvertedSearchDataProvider' object has no"
-            " attribute '{}'".format(attr))
+            self.__fields = obj.fields
 
     @property
     def fields(self):
         return self.__fields
 
     def __str__(self):
-        return self.__underlying_obj_str
+        return str(self.__underlying_obj)
     __repr__ = __str__
 
 def implicit_conversion(func):
@@ -77,24 +65,14 @@ def implicit_conversion(func):
     When the func is called, the list of objects will be implicitly converted
     to a list of SearchFieldDataProviders
     '''
-
-    def convert_object(value):
-        # If value is not a SearchFieldDataProvider, convert it to a
-        # SearchFieldDataProvider by wrapping it in a
-        # ImplicitlyConvertedSearchDataProvider.  If the value is already
-        # a SearchFieldDataProvider, return value
-        if not isinstance(value, SearchFieldDataProvider):
-            return __ImplicitlyConvertedSearchDataProvider(value)
-        return value
-
     def wrapper(self, values):
         # Ensure values is a list
         if not isinstance(values, collections.Collection):
             raise ValueError('values must be a list')
 
-        return func(
+        return [r.underlying_obj for r in func(
             self,
-            [convert_object(v) for v in values]
-        )
+            [__ImplicitlyConvertedSearchDataProvider(v) for v in values])
+        ]
 
     return wrapper
