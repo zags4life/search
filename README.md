@@ -3,7 +3,7 @@ Search
 
 ## Introduction
 
-The _search_ module enables users to quickly and easily query a list of python objects using a human readable grammar.  This is particularly useful when you need to filter frequently or wish to enable callers to filter using custom filers
+The _search_ module enables users to quickly and easily query a list of generic python objects using a human readable grammar.  This is particularly useful when you need to filter frequently or wish to enable callers to filter using custom filers
 
 * [Introduction](#introduction)
 * [Grammar](#grammar)
@@ -151,6 +151,3 @@ Output:
 
 TestObject(name=Eric, age=34, city='Chicago')
 ```
-
-### Implementing SearchFieldDataProvider
-TBD
