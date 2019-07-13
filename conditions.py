@@ -29,6 +29,8 @@ def stacktrace(func):
     return wrapper
 
 class Condition(ABC):
+    '''An ABC for all search conditions'''
+
     @abstractmethod
     def __call__(self, values):
         pass
@@ -111,6 +113,23 @@ class Expression(Condition):
                 results.add(value)
         return results
 
+
+class ContainsExpression(Expression):
+    OPERATOR = 'CONTAINS'
+
+    @stacktrace
+    def __call__(self, values):
+        fname = self.field.name
+        return self._get_values(
+            values=values,
+            search_func=lambda v: any(f.name == fname for f in v.fields))
+            
+    def __str__(self):
+        assert self.__class__.OPERATOR
+        return '({1} {0})'.format(
+            self.field.name,
+            self.__class__.OPERATOR)    
+
 class EqualExpression(Expression):
     OPERATOR = '='
 
@@ -173,3 +192,4 @@ class GreaterThanOrEqualExpression(Expression):
         return self._get_values(
             values=values,
             search_func=lambda v: any(f >= self.field for f in v.fields))
+

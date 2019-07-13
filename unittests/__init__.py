@@ -58,13 +58,14 @@ def execute_query(search_str, dry_run=False, debug=False):
     values = [
         {'x': 1, 'y': 2, 'foo': 3},
         dict(x=1, y=2, foo='bar'),
-
         dict(x='3', y=2, foo='gurp'),
         dict(x=3, y=2, foo='gurp'),
         [1,2,3,4],
         TestObject(x=3, y=2, foo='travis'),
         {'name': 'Mike', 'fo0d': 'bar'},
         {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
+
+        TestObject(name='Travis', age='None'),
     ]
 
     try:

@@ -6,29 +6,33 @@ from .conditions import *
 logger = logging.getLogger(__name__)
 
 tokens = (
+    'CONTAINS',
     'NAME',
     'EQUALS',
     'NOTEQUALS',
     'LIKE', 'LT', 'GT', 'LTE', 'GTE',
+
     'AND', 'OR',
     'NOT',
     'LPAREN','RPAREN',
+
 )
 
 # Tokens
-t_NAME    = r'[a-zA-Z0-9_\\.*\-\+\^\$/\|]+'
-t_LT      = r'\s*<\s*'
-t_LTE     = r'\s*<=\s*'
-t_GT      = r'\s*>\s*'
-t_GTE      = r'\s*>=\s*'
-t_EQUALS  = r'\s*=\s*'
-t_NOTEQUALS  = r'\s*!=\s*'
-t_AND     = r'(?i)\s+and\s+'
-t_OR      = r'(?i)\s+or\s+'
-t_LIKE    = r'(?i)\s+like\s+'
-t_NOT     = r'(?i)(!|\s*not\s+)'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+t_CONTAINS  = r'\s*HAS\s+'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\)\(\[\]]+'
+t_LT        = r'\s*<\s*'
+t_LTE       = r'\s*<=\s*'
+t_GT        = r'\s*>\s*'
+t_GTE       = r'\s*>=\s*'
+t_EQUALS    = r'\s*=\s*'
+t_NOTEQUALS = r'\s*!=\s*'
+t_AND       = r'(?i)\s+and\s+'
+t_OR        = r'(?i)\s+or\s+'
+t_LIKE      = r'(?i)\s+like\s+'
+t_NOT       = r'(?i)(!|\s*not\s+)'
+t_LPAREN    = r'\('
+t_RPAREN    = r'\)'
 
 has_error = False
 
@@ -37,7 +41,8 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    logger.debug("Illegal character '{}'".format(t.value[0]))
+    logger.debug("Illegal character '{}' at pos {}".format(
+        t.value, t.lexpos+1))
     t.lexer.skip(1)
 
     global has_error
@@ -48,6 +53,7 @@ from .ply import lex, yacc
 
 # Precedence rules for the arithmetic operators
 precedence = (
+    ('left', 'CONTAINS'),
     ('left', 'LT', 'GT', 'LTE', 'GTE'),
     ('left', 'EQUALS', 'LIKE', 'NOTEQUALS'),
     ('left', 'AND', 'OR'),
@@ -55,6 +61,9 @@ precedence = (
     ('left', 'NOT'),
 )
 
+def p_expression_contains(p):
+    'expression : CONTAINS NAME'
+    p[0] = ContainsExpression(p[2].strip(), '')
 
 def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
@@ -89,7 +98,7 @@ def p_expression_group(p):
     p[0] = p[2]
 
 def p_expr_stmt(p):
-    '''expression : statement'''
+    'expression : statement'
     p[0] = p[1]
 
 def p_statement_and(p):
@@ -114,7 +123,9 @@ def p_statement_group(p):
 
 def p_error(p):
     if p:
-        logger.warning("Syntax error at '{}'".format(p.value))
+        logger.warning(
+            "Syntax error at '{}' at pos {}".format(p.value, p.lexpos + 1)
+        )
     else:
         logger.warning('An error occurred... not sure what')
 
