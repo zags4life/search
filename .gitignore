@@ -2,3 +2,5 @@
 *.pc
 *.pyc
 __pycache__/
+*.out
+parsetab.py
