@@ -56,7 +56,7 @@ class TestObject(object):
 
 def execute_query(search_str, dry_run=False, debug=False):
     values = [
-        {'x': 1, 'y': 2, 'foo': 3},
+        {'x': 2, 'y': 2, 'foo': 3},
         dict(x=1, y=2, foo='bar'),
         dict(x='3', y=2, foo='gurp'),
         dict(x=3, y=2, foo='gurp'),
@@ -64,6 +64,9 @@ def execute_query(search_str, dry_run=False, debug=False):
         TestObject(x=3, y=2, foo='travis'),
         {'name': 'Mike', 'fo0d': 'bar'},
         {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
+
+
+        {'name': 'mike', 'food': 'bar'},
 
         TestObject(name='Travis', age='None'),
     ]
@@ -78,6 +81,7 @@ def execute_query(search_str, dry_run=False, debug=False):
 
         if not dry_run:
             print('\nResults:')
+
             for v in results:
                 print(' '*4, v)
 

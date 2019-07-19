@@ -6,12 +6,10 @@ from .conditions import *
 logger = logging.getLogger(__name__)
 
 tokens = (
-    'CONTAINS',
     'NAME',
     'EQUALS',
     'NOTEQUALS',
     'LIKE', 'LT', 'GT', 'LTE', 'GTE',
-
     'AND', 'OR',
     'NOT',
     'LPAREN','RPAREN',
@@ -19,8 +17,7 @@ tokens = (
 )
 
 # Tokens
-t_CONTAINS  = r'\s*HAS\s+'
-t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\)\(\[\]]+'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]]+'
 t_LT        = r'\s*<\s*'
 t_LTE       = r'\s*<=\s*'
 t_GT        = r'\s*>\s*'
@@ -53,17 +50,12 @@ from .ply import lex, yacc
 
 # Precedence rules for the arithmetic operators
 precedence = (
-    ('left', 'CONTAINS'),
     ('left', 'LT', 'GT', 'LTE', 'GTE'),
     ('left', 'EQUALS', 'LIKE', 'NOTEQUALS'),
     ('left', 'AND', 'OR'),
     ('left', 'LPAREN', 'RPAREN'),
     ('left', 'NOT'),
 )
-
-def p_expression_contains(p):
-    'expression : CONTAINS NAME'
-    p[0] = ContainsExpression(p[2].strip(), '')
 
 def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
