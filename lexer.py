@@ -17,7 +17,7 @@ tokens = (
 )
 
 # Tokens
-t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]]+'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,]+'
 t_LT        = r'\s*<\s*'
 t_LTE       = r'\s*<=\s*'
 t_GT        = r'\s*>\s*'
@@ -85,6 +85,10 @@ def p_expression_gte(p):
     'expression : NAME GTE NAME'
     p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
 
+def p_expression_name(p):
+    'expression : NAME'
+    p[0] = LikeExpression(p[1], '.*')
+
 def p_expression_group(p):
     'expression : LPAREN expression RPAREN'
     p[0] = p[2]
@@ -96,10 +100,6 @@ def p_expr_stmt(p):
 def p_statement_and(p):
     'statement : expression AND expression'
     p[0] = AndStatement(p[1], p[3])
-
-def p_statement_expr_expr(p):
-    'statement : expression expression'
-    p[0] = AndStatement(p[1], p[2])
 
 def p_statement_or(p):
     'statement : expression OR expression'

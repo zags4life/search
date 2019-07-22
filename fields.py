@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 DATE_FORMATS = (
-    '%m-%d-%Y', 
+    '%m-%d-%Y',
     '%m-%d-%y',
-    '%m/%d/%Y', 
+    '%m/%d/%Y',
     '%m/%d/%y',
-    '%m%d%Y', 
+    '%m%d%Y',
     '%m%d%y',
     '%m/%d',
     '%m-%d',
@@ -41,7 +41,7 @@ def Date(date_str):
             return formatted.date()
         except ValueError:
             pass
-            
+
     logger.error("Failed to parse date '{}'".format(date_strs))
 
 class SearchFieldDataProvider(ABC):
@@ -121,13 +121,9 @@ class BaseField(object):
         return '{0.name} = {0.value}'.format(self)
     __repr__ = __str__
 
+    @verify_name_matches
     def match(self, other):
-        # return True is the field name and value match the other
-        # fields name and value.  Otherwise False.
-        return (
-            re.search(other.name, self.name) and
-            re.search(str(other.value), str(self.value))
-        )
+        return re.search(str(other.value), str(self.value))
 
 class SearchField(BaseField):
     '''Represents a searchable field'''

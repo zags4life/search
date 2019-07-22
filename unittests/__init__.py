@@ -27,7 +27,6 @@ def run(tests_to_run):
             logger.error(e)
     return result
 
-from ..fields import SearchFieldDataProvider, SearchField
 from ..query import Query
 
 class TestObject(object):
@@ -35,11 +34,6 @@ class TestObject(object):
         self.__fields = []
         for k,v in kwargs.items():
             setattr(self, k, v)
-            self.__fields.append(SearchField(k,v))
-
-    @property
-    def fields(self):
-        return self.__fields
 
     def __str__(self):
         values = ['{}={}'.format(k,v) for k,v in self.__dict__.items()
@@ -57,6 +51,8 @@ class TestObject(object):
 def execute_query(search_str, dry_run=False, debug=False):
     values = [
         {'x': 2, 'y': 2, 'foo': 3},
+        {'x': 2, 'yy': 20, 'foo': 3},
+
         dict(x=1, y=2, foo='bar'),
         dict(x='3', y=2, foo='gurp'),
         dict(x=3, y=2, foo='gurp'),
@@ -67,6 +63,8 @@ def execute_query(search_str, dry_run=False, debug=False):
         {'name': 'mike', 'food': 'bar'},
 
         TestObject(name='Travis', age='None'),
+        TestObject(name='Tim', age='*'),
+        TestObject(name='.', age='192')
     ]
 
     try:

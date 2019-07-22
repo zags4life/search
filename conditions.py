@@ -84,6 +84,7 @@ class OrStatement(Condition):
 
 class Expression(Condition):
     OPERATOR = None
+
     def __init__(self, lhs, rhs):
         super().__init__()
 
