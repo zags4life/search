@@ -64,8 +64,6 @@ def execute_query(search_str, dry_run=False, debug=False):
         TestObject(x=3, y=2, foo='travis'),
         {'name': 'Mike', 'fo0d': 'bar'},
         {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
-
-
         {'name': 'mike', 'food': 'bar'},
 
         TestObject(name='Travis', age='None'),
