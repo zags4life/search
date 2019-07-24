@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 DATE_FORMATS = (
-    '%m-%d-%Y', 
+    '%m-%d-%Y',
     '%m-%d-%y',
-    '%m/%d/%Y', 
+    '%m/%d/%Y',
     '%m/%d/%y',
-    '%m%d%Y', 
+    '%m%d%Y',
     '%m%d%y',
     '%m/%d',
     '%m-%d',
@@ -41,7 +41,7 @@ def Date(date_str):
             return formatted.date()
         except ValueError:
             pass
-            
+
     logger.error("Failed to parse date '{}'".format(date_strs))
 
 class SearchFieldDataProvider(ABC):
@@ -73,10 +73,12 @@ def convert_type(func):
             with query_field:
                 return func(field, query_field(field.value))
         except Exception as e:
-            # If we cannot convert the type, log the exception and return False
-            logger.debug(e)
-            logger.debug('{0: >16} {1}'.format('SearchField:', str(field)))
-            logger.debug('{0: >16} {1}'.format('QueryField:', str(query_field)))
+            logger.debug('{0}; {1}; {2}'.format(
+                    e,
+                    'SearchField: {}'.format(field),
+                    'QueryField: {}'.format(query_field)
+                )
+            )
             return False
     return wrapper
 
@@ -119,13 +121,9 @@ class BaseField(object):
         return '{0.name} = {0.value}'.format(self)
     __repr__ = __str__
 
+    @verify_name_matches
     def match(self, other):
-        # return True is the field name and value match the other
-        # fields name and value.  Otherwise False.
-        return (
-            re.search(other.name, self.name) and
-            re.search(str(other.value), str(self.value))
-        )
+        return re.search(str(other.value), str(self.value))
 
 class SearchField(BaseField):
     '''Represents a searchable field'''

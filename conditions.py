@@ -29,6 +29,8 @@ def stacktrace(func):
     return wrapper
 
 class Condition(ABC):
+    '''An ABC for all search conditions'''
+
     @abstractmethod
     def __call__(self, values):
         pass
@@ -82,6 +84,7 @@ class OrStatement(Condition):
 
 class Expression(Condition):
     OPERATOR = None
+
     def __init__(self, lhs, rhs):
         super().__init__()
 
@@ -173,3 +176,4 @@ class GreaterThanOrEqualExpression(Expression):
         return self._get_values(
             values=values,
             search_func=lambda v: any(f >= self.field for f in v.fields))
+
