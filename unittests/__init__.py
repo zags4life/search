@@ -27,7 +27,6 @@ def run(tests_to_run):
             logger.error(e)
     return result
 
-from ..fields import SearchFieldDataProvider, SearchField
 from ..query import Query
 
 class TestObject(object):
@@ -35,11 +34,6 @@ class TestObject(object):
         self.__fields = []
         for k,v in kwargs.items():
             setattr(self, k, v)
-            self.__fields.append(SearchField(k,v))
-
-    @property
-    def fields(self):
-        return self.__fields
 
     def __str__(self):
         values = ['{}={}'.format(k,v) for k,v in self.__dict__.items()
@@ -56,15 +50,21 @@ class TestObject(object):
 
 def execute_query(search_str, dry_run=False, debug=False):
     values = [
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=2, foo='bar'),
+        {'x': 2, 'y': 2, 'foo': 3},
+        {'x': 2, 'yy': 20, 'foo': 3},
 
+        dict(x=1, y=2, foo='bar'),
         dict(x='3', y=2, foo='gurp'),
         dict(x=3, y=2, foo='gurp'),
         [1,2,3,4],
         TestObject(x=3, y=2, foo='travis'),
         {'name': 'Mike', 'fo0d': 'bar'},
         {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
+        {'name': 'mike', 'food': 'bar'},
+
+        TestObject(name='Travis', age='None'),
+        TestObject(name='Tim', age='*'),
+        TestObject(name='.', age='192')
     ]
 
     try:
@@ -77,6 +77,7 @@ def execute_query(search_str, dry_run=False, debug=False):
 
         if not dry_run:
             print('\nResults:')
+
             for v in results:
                 print(' '*4, v)
 

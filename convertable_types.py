@@ -64,7 +64,7 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         return self.__underlying_obj
 
     def __str__(self):
-        return str(self.__underlying_obj)
+        return str(self.underlying_obj)
     __repr__ = __str__
 
 def implicit_conversion(func):

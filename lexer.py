@@ -13,22 +13,23 @@ tokens = (
     'AND', 'OR',
     'NOT',
     'LPAREN','RPAREN',
+
 )
 
 # Tokens
-t_NAME    = r'[a-zA-Z0-9_\\.*\-\+\^\$/\|]+'
-t_LT      = r'\s*<\s*'
-t_LTE     = r'\s*<=\s*'
-t_GT      = r'\s*>\s*'
-t_GTE      = r'\s*>=\s*'
-t_EQUALS  = r'\s*=\s*'
-t_NOTEQUALS  = r'\s*!=\s*'
-t_AND     = r'(?i)\s+and\s+'
-t_OR      = r'(?i)\s+or\s+'
-t_LIKE    = r'(?i)\s+like\s+'
-t_NOT     = r'(?i)(!|\s*not\s+)'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,]+'
+t_LT        = r'\s*<\s*'
+t_LTE       = r'\s*<=\s*'
+t_GT        = r'\s*>\s*'
+t_GTE       = r'\s*>=\s*'
+t_EQUALS    = r'\s*=\s*'
+t_NOTEQUALS = r'\s*!=\s*'
+t_AND       = r'(?i)\s+and\s+'
+t_OR        = r'(?i)\s+or\s+'
+t_LIKE      = r'(?i)\s+like\s+'
+t_NOT       = r'(?i)(!|\s*not\s+)'
+t_LPAREN    = r'\('
+t_RPAREN    = r'\)'
 
 has_error = False
 
@@ -37,7 +38,8 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    logger.debug("Illegal character '{}'".format(t.value[0]))
+    logger.debug("Illegal character '{}' at pos {}".format(
+        t.value, t.lexpos+1))
     t.lexer.skip(1)
 
     global has_error
@@ -54,7 +56,6 @@ precedence = (
     ('left', 'LPAREN', 'RPAREN'),
     ('left', 'NOT'),
 )
-
 
 def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
@@ -84,21 +85,21 @@ def p_expression_gte(p):
     'expression : NAME GTE NAME'
     p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
 
+def p_expression_name(p):
+    'expression : NAME'
+    p[0] = LikeExpression(p[1], '.*')
+
 def p_expression_group(p):
     'expression : LPAREN expression RPAREN'
     p[0] = p[2]
 
 def p_expr_stmt(p):
-    '''expression : statement'''
+    'expression : statement'
     p[0] = p[1]
 
 def p_statement_and(p):
     'statement : expression AND expression'
     p[0] = AndStatement(p[1], p[3])
-
-def p_statement_expr_expr(p):
-    'statement : expression expression'
-    p[0] = AndStatement(p[1], p[2])
 
 def p_statement_or(p):
     'statement : expression OR expression'
@@ -114,7 +115,9 @@ def p_statement_group(p):
 
 def p_error(p):
     if p:
-        logger.warning("Syntax error at '{}'".format(p.value))
+        logger.warning(
+            "Syntax error at '{}' at pos {}".format(p.value, p.lexpos + 1)
+        )
     else:
         logger.warning('An error occurred... not sure what')
 
