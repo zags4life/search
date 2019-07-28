@@ -4,7 +4,7 @@ from collections.abc import Collection, Mapping
 import logging
 
 from .fields import SearchField
-from .searchdataprovider import SearchFieldDataProvider
+from .searchdataprovider import SearchDataProvider
 
 logger = logging.getLogger(__name__)
 
@@ -13,22 +13,22 @@ def convert_dict(d):
     key/value pair as the SearchField'''
     return [SearchField(k,v) for k,v in d.items()]
 
-class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
-    '''Used to wrap objects as SearchFieldDataProvider used for searching.
+class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
+    '''Used to wrap objects as SearchDataProvider used for searching.
     This object will implicitly ensure the object adheres to the
-    SearchFieldDataProvider interface.
+    SearchDataProvider interface.
 
     There are four supported modes:
     1) underlying object is a dictionary
     2) underlying object is a list
     3) underlying object is a class, derived from object
-    4) underlying object already implements SearchFieldDataProvider interface
+    4) underlying object already implements SearchDataProvider interface
     '''
     def __init__(self, obj):
         '''Creates an instance of ImplicitlyConvertedSearchDataProvider.
 
         Parameters:
-            obj - the underlying object to wrap as a SearchFieldDataProvider
+            obj - the underlying object to wrap as a SearchDataProvider
         '''
 
         self.__fields = []
@@ -44,9 +44,9 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
         elif isinstance(obj, list):
             self.__fields = [SearchField(k,v) for k, v in enumerate(obj)]
 
-        # 3) If the object implements SearchFieldDataProvider, retrieve objects
+        # 3) If the object implements SearchDataProvider, retrieve objects
         #    fields and convert to a list of SearchField objects
-        elif isinstance(obj, SearchFieldDataProvider):
+        elif isinstance(obj, SearchDataProvider):
             # Retrieve the fields from the object
             fields = obj.fields
 
@@ -64,7 +64,7 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
             # Convert the dict to a list of SearchField objects
             self.__fields.extend(convert_dict(fields))
 
-        # 4) If the object does not implement SearchFieldDataProvider,
+        # 4) If the object does not implement SearchDataProvider,
         #    iterate through all attributes and properties in the object.
         #    For all properties and public (i.e. does not start with '_')
         #    attributes, create a SearchField object and add it to
@@ -100,7 +100,7 @@ class __ImplicitlyConvertedSearchDataProvider(SearchFieldDataProvider):
 
 def implicit_conversion(func):
     '''Decorator that implicitly converts a list of values as
-    SearchFieldDataProvider
+    SearchDataProvider
 
     When the func is called, the list of objects will be implicitly converted
     to a list of SearchFieldDataProviders
