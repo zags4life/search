@@ -1,13 +1,10 @@
 # fields.py
 
-from abc import ABC, abstractproperty
-import copy
 from datetime import date, datetime
 import logging
 import re
 
 logger = logging.getLogger(__name__)
-
 
 DATE_FORMATS = (
     '%m-%d-%Y',
@@ -44,11 +41,6 @@ def Date(date_str):
 
     logger.error("Failed to parse date '{}'".format(date_strs))
 
-class SearchFieldDataProvider(ABC):
-    @abstractproperty
-    def fields(self):
-        pass
-
 def verify_name_matches(func):
     '''Decorator which ensures the Field name and QueryField name matches.
     If true, call func, else return False
@@ -61,13 +53,15 @@ def convert_type(func):
     '''Decorator to convert QueryField value to that of their SearchField value
     counterparts type.
 
-    All QueryField values are initially strings.  We need to convert them to the same type
-    as the field we are comparing.  This ensures that proper comparisons occur, i.e.
-    comparing integer or decimal values.
+    All QueryField values are initially strings.  We need to convert them to 
+    the same type as the field we are comparing.  This ensures that proper 
+    comparisons occur, i.e.  comparing integer or decimal values.
     '''
     def wrapper(field, query_field):
-        assert (isinstance(query_field, QueryField) and isinstance(field, SearchField)), \
-            'Invalid search field: {} - {}'.format(type(field), type(query_field))
+        assert (isinstance(query_field, QueryField) and 
+                isinstance(field, SearchField)), \
+            'Invalid search field: {} - {}'.format(
+                type(field), type(query_field))
 
         try:
             with query_field:
@@ -141,14 +135,14 @@ class QueryField(BaseField):
         super().__init__(name, value)
 
     def __call__(self, value):
-        '''Call operator - converts the underlying string value to the appropriate type.'''
+        '''Call operator - converts the underlying string value to the 
+        appropriate type.
+        '''
 
         # If the value is a date, convert the string value to a date object.
         # Else, convert the string value to the same type as the value
-        if isinstance(value, (date, datetime)):
-            self.value = Date(self.value)
-        else:
-            self.value = type(value)(self.value)
+        self.value = Date(self.value) if isinstance(value, (date, datetime)) \
+            else type(value)(self.value)
         return self
 
     def __enter__(self):
