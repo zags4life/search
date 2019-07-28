@@ -1,13 +1,10 @@
 # fields.py
 
-from abc import ABC, abstractproperty
-import copy
 from datetime import date, datetime
 import logging
 import re
 
 logger = logging.getLogger(__name__)
-
 
 DATE_FORMATS = (
     '%m-%d-%Y',
@@ -43,11 +40,6 @@ def Date(date_str):
             pass
 
     logger.error("Failed to parse date '{}'".format(date_strs))
-
-class SearchFieldDataProvider(ABC):
-    @abstractproperty
-    def fields(self):
-        pass
 
 def verify_name_matches(func):
     '''Decorator which ensures the Field name and QueryField name matches.
