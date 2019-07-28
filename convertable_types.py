@@ -21,8 +21,8 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
     There are four supported modes:
     1) underlying object is a dictionary
     2) underlying object is a list
-    3) underlying object is a class, derived from object
-    4) underlying object already implements SearchDataProvider interface
+    3) underlying object implements SearchDataProvider interface
+    4) underlying object is a class, derived from object
     '''
     def __init__(self, obj):
         '''Creates an instance of ImplicitlyConvertedSearchDataProvider.
