@@ -18,7 +18,7 @@ The _search_ module enables users to quickly and easily query a list of generic 
 ## Grammar
 
 ### Arithmetic Expressions
-The most fundamental expression consists of a key/value pair separated by an operator.  Any object that contains a field that matches the field name and field value returns `True` using the supplied operator will be returned in the resulting set. 
+The most fundamental expression consists of a key/value pair separated by an operator.  Any object that contains a field that matches the field name and field value returns `True` using the supplied operator will be returned in the resulting set.
 
 ```<field_name> <operator> <field_value>```
 
@@ -63,9 +63,8 @@ For example:
 ### Case sensitivity
 All logical and arithmetic operators are case insensitive.  Field names and value are case sensitive.
 
-
 ## Supported Types
-The _search_ module automatically converts `dict`, `list`, and custom class types to searchable objects.  
+The _search_ module automatically converts `dict`, `list`, and custom class types to searchable objects.
 
 For `dict`, each key/value pair becomes a searchable item where the search field name equals the key and the search field value becomes the value.
 
@@ -78,31 +77,26 @@ The _search_ module API `query` is the main entry point for querying.
 
 ```
 def query(query_str, values):
-    '''Queries a list of values given a query string returning the resulting 
+    '''Queries a list of values given a query string returning the resulting
     subset of values.
-    
+
     Parameters:
-    query_str -a string representing the query 
+    query_str -a string representing the query
     values - a list of values to query
-    
-    Returns: 
-    The resulting subset of items after the original values have been 
+
+    Returns:
+    The resulting subset of items after the original values have been
     filtered using the query_str, in list form.
     '''
 ```
 
 ### Defining Custom Search Fields
-If you recall, all public attributes in a class will automatically be made searchable.  However, in some cases, a developer may wish to control which attributes are searchable.  In this case, they must derive their class from `SearchFieldDataProvider`.
+If you recall, all public attributes and properties in a class will automatically be made searchable.  However, in some cases, a developer may wish to control which attributes are searchable.  In this case, they must derive their class from `SearchDataProvider`.
 
+#### SearchDataProvider
+The `SearchDataProvider` is an ABC for defining custom searchable data.  This interface allows objects to control which attributes are searchable and which are not.
 
-#### SearchFieldDataProvider
-The `SearchFieldDataProvider` is an ABC and is required for all searchable items.  Items that do not implement this interface will be automatically converted ([see Supported Types](#supported-types)).
-
-`SearchFieldDataProvider` requires child classes to implement the `fields` property, which exposes all searchable fields to the _search_ module.  Each item in the list must be a `SearchField` item.
-
-
-#### SearchField
-A `SearchField` defines a searchable field and its corresponding value.
+`SearchDataProvider` requires child classes to implement the `fields` property, which exposes all searchable fields to the _search_ module as a dictionary of key/value pairs.
 
 ## Examples
 
@@ -135,13 +129,13 @@ class TestObject(object):
         self.__fields = []
         for k,v in kwargs.items():
             setattr(self, k, v)
-            
+
 if __name__ == '__main__':
     values = [
         TestObject(name=Tom, age=27),
         TestObject(name=Eric, age=34, city='Chicago'),
     ]
-    
+
     results = query('city = Chicago', values)
     for result in query('y = 2', values):
     print (result)
@@ -150,4 +144,18 @@ if __name__ == '__main__':
 Output:
 
 TestObject(name=Eric, age=34, city='Chicago')
+```
+
+### Implementing a SearchDataProvider
+```
+from search import SearchDataProvider
+
+class TestObject(SearchDataProvider):
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
+    @property
+    def fields(self):
+        return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
 ```
