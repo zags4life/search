@@ -13,6 +13,9 @@ def convert_dict(d):
     key/value pair as the SearchField'''
     return [SearchField(k,v) for k,v in d.items()]
 
+def is_collection(v):
+    return isinstance(v, Collection) and not isinstance(v, str)
+
 class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
     '''Used to wrap objects as SearchDataProvider used for searching.
     This object will implicitly ensure the object adheres to the
@@ -82,6 +85,16 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
                 {key: value for key, value in obj.__dict__.items()
                     if not key.startswith('_')}
             ))
+
+        # Collections are not supported.  Verify fields
+        if any(is_collection(field.value) for field in self.__fields):
+            invalid_fields = [f.name for f in self.__fields if is_collection(f.value)]
+            self.__fields = [f for f in self.__fields if not is_collection(f.value)]
+
+            # Log error
+            msg = '{} contains invalid fields - ignoring fields "{}"'.format(
+                obj.__class__.__name__, ', '.join(invalid_fields))
+            logger.error(msg)
 
     @property
     def fields(self):
