@@ -20,10 +20,19 @@ class _TestObject(object):
 
     __repr__ = __str__
 
-class TestSearchDataProvider(_TestObject, SearchDataProvider):
+class InvalidTestObject(_TestObject):
     @property
     def fields(self):
         return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
 
+    @property
+    def asfdff_fields(self):
+        return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
+
+
+class TestSearchDataProvider(InvalidTestObject, SearchDataProvider):
+    pass
+
 TestObject = TestSearchDataProvider
 # TestObject = _TestObject
+TestObject = InvalidTestObject
