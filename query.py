@@ -8,20 +8,24 @@ class Query(object):
     def __init__(self, query_str):
         # Validate the query string before compiling
         self.__validate_query_str(query_str)
+        self.__condition = None
 
-        # compile the query string into a condition object
-        self._condition = compile(query_str)
+        if not (not query_str or query_str == '*'):
+            # compile the query string into a condition object
+            self.__condition = compile(query_str)
 
-        # if condition is none, the query string is invalid, raise
-        if not self._condition:
-            raise InvalidQueryError("Invalid query string '{}'".format(query_str.replace('\n', '')))
+            # if condition is none, the query string is invalid, raise
+            if not self.__condition:
+                raise InvalidQueryError("Invalid query string '{}'".format(query_str.replace('\n', '')))
 
     @implicit_conversion
     def __call__(self, values):
-        return self._condition(set(values))
+        if not self.__condition:
+            return values
+        return self.__condition(values)
 
     def __str__(self):
-        return 'QUERY: {}'.format(self._condition)
+        return 'QUERY: {}'.format(self.__condition)
 
     def __validate_query_str(self, query_str):
         stack = []

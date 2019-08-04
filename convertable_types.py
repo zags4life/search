@@ -126,7 +126,7 @@ def implicit_conversion(func):
         return [
             r.underlying_object for r in func(
                 self,
-                [__ImplicitlyConvertedSearchDataProvider(v) for v in values]
+                {__ImplicitlyConvertedSearchDataProvider(v) for v in values}
             )
         ]
 
