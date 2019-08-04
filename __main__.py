@@ -7,6 +7,7 @@ import sys
 import re
 
 
+from . import search
 from .query import Query
 from .unittests.testobject import TestObject
 
@@ -14,7 +15,7 @@ from .unittests.testobject import TestObject
 if sys.version_info[0] >= 3:
     raw_input = input  # use input() on Python 3
 
-def execute_query(search_str, dry_run=False, debug=False):
+def execute_query(search_str):
     values = [
         {'x': 2, 'y': 2, 'foo': 3},
         {'x': 2, 'yy': 20, 'foo': 3},
@@ -34,33 +35,27 @@ def execute_query(search_str, dry_run=False, debug=False):
     ]
 
     try:
-        q = Query(search_str)
+        results = search(search_str, values)
 
-        if not dry_run:
-            print('{}'.format(q))
+        print('\nResults:')
 
-        results = q(values)
+        for r in results:
+            print(' '*4, r)
 
-        if not dry_run:
-            print('\nResults:')
-
-            for v in results:
-                print(' '*4, v)
-
-            print('{} results found - out of {} records'.format(len(results), len(values)))
+        print('{} results found - out of {} records'.format(len(results), len(values)))
 
     except InvalidQueryError as e:
         print('Invalid Query: {}'.format(e))
 
 
-def run_query(query_str, dryrun=False, debug=False):
+def run_query(query_str, dryrun):
     if query_str.lower().strip() in ['quit', 'exit']:
         return True
 
     if dryrun:
         print(str(Query(query_str)))
     else:
-        execute_query(query_str, debug=debug)
+        execute_query(query_str)
 
 if __name__ == '__main__':
 
@@ -76,17 +71,12 @@ if __name__ == '__main__':
 
     if cmds:
         for cmd in re.split(',|;', cmds):
-            if cmd and run_query(cmd):
+            if run_query(cmd):
                 exit(0)
         else:
             print()
 
     while True:
-        search_str = raw_input('search > ')
-
-        if not search_str:
-            continue
-
-        if run_query(search_str, dryrun=args.dryrun, ):
+        if run_query(raw_input('search > '), dryrun=args.dryrun):
             break
         print()

@@ -16,7 +16,10 @@ class Query(object):
 
             # if condition is none, the query string is invalid, raise
             if not self.__condition:
-                raise InvalidQueryError("Invalid query string '{}'".format(query_str.replace('\n', '')))
+                raise InvalidQueryError(
+                    "Invalid query string '{}'".format(
+                        query_str.replace('\n', ''))
+                )
 
     @implicit_conversion
     def __call__(self, values):
@@ -45,7 +48,4 @@ class InvalidQueryError(Exception):
     pass
 
 def query(query_str, values):
-    if not query_str:
-        return list(values)
-
     return Query(query_str)(values)
