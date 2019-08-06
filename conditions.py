@@ -1,7 +1,8 @@
 # condition.py
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 import logging
+from six import with_metaclass
 
 from .fields import QueryField
 
@@ -28,7 +29,7 @@ def stacktrace(func):
         return func(self, *args, **kwargs)
     return wrapper
 
-class Condition(ABC):
+class Condition(with_metaclass(ABCMeta, object)):
     '''An ABC for all search conditions'''
 
     @abstractmethod
@@ -53,7 +54,7 @@ class NotStatement(Condition):
 
 class AndStatement(Condition):
     def __init__(self, c1, c2):
-        super().__init__()
+        super(AndStatement, self).__init__()
         self.condition1 = c1
         self.condition2 = c2
 
@@ -66,7 +67,7 @@ class AndStatement(Condition):
 
 class OrStatement(Condition):
     def __init__(self, c1, c2):
-        super().__init__()
+        super(OrStatement, self).__init__()
         self.condition1 = c1
         self.condition2 = c2
 
@@ -86,8 +87,7 @@ class Expression(Condition):
     OPERATOR = None
 
     def __init__(self, lhs, rhs):
-        super().__init__()
-
+        super(Expression, self).__init__()
         self.field = QueryField(lhs, rhs)
 
     def __str__(self):

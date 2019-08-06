@@ -1,5 +1,7 @@
 # __main__.py
 
+from __future__ import print_function
+
 from argparse import ArgumentParser
 from datetime import datetime
 import logging
@@ -8,7 +10,7 @@ import re
 
 
 from . import search
-from .query import Query
+from .query import Query, InvalidQueryError
 from .unittests.testobject import TestObject
 
 
@@ -71,7 +73,7 @@ if __name__ == '__main__':
 
     if cmds:
         for cmd in re.split(',|;', cmds):
-            if run_query(cmd):
+            if run_query(cmd, dryrun=args.dryrun):
                 exit(0)
         else:
             print()

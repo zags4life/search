@@ -132,7 +132,7 @@ class QueryField(BaseField):
     '''
     def __init__(self, name, value):
         assert isinstance(value, str), 'value must be of type str'
-        super().__init__(name, value)
+        super(QueryField, self).__init__(name, value)
 
     def __call__(self, value):
         '''Call operator - converts the underlying string value to the 

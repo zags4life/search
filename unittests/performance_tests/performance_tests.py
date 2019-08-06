@@ -1,3 +1,7 @@
+# unittests/performance_tests/performance_tests.py
+
+from __future__ import print_function
+
 import logging
 import timeit
 
