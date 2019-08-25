@@ -1,16 +1,15 @@
+# query.py
+
 from .convertable_types import implicit_conversion
 from .lexer import compile
-
-import logging
-logger = logging.getLogger(__name__)
 
 class Query(object):
     def __init__(self, query_str):
         # Validate the query string before compiling
-        self.__validate_query_str(query_str)
         self.__condition = None
 
         if not (not query_str or query_str == '*'):
+            self.__validate_query_str(query_str)
             # compile the query string into a condition object
             self.__condition = compile(query_str)
 

@@ -1,7 +1,9 @@
 # condition.py
 
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
 import logging
+import operator
 from six import with_metaclass
 
 from .fields import QueryField
@@ -15,13 +17,20 @@ def stacktrace(func):
         global stackdepth
 
         try:
+            start_time = datetime.now()
             logger.debug('{0}{1} {2}'.format('    ' * stackdepth, '>>>', str(self)))
 
             stackdepth += 1
             return func(self, *args, **kwargs)
         finally:
             stackdepth -= 1
-            logger.debug('{0}{1} {2}'.format('    ' * stackdepth, '<<<', str(self)))
+            logger.debug('{0}{1} {2} ({3})'.format(
+                    '    ' * stackdepth,
+                    '<<<',
+                    str(self),
+                    (datetime.now() - start_time)
+                )
+            )
 
     def wrapper(self, *args, **kwargs):
         if __debug__:
@@ -100,17 +109,23 @@ class Expression(Condition):
     def __repr__(self):
         return '{}: "{}"'.format(self.__class__.__name__, str(self))
 
-    @classmethod
-    def _get_values(cls, values, search_func):
+    def _get_values(self, values, op):
         '''Returns a set of values which match search_func
 
         parameters:
             values - values to search_func
-            search_func - a function used for comparision of the values
+            op - the operator function used to compare each field
         '''
+
+        def check(v):
+            for field in v.fields:
+                if op(field, self.field):
+                    return True
+            return False
+
         results = set()
         for value in values:
-            if search_func(value):
+            if check(value):
                 results.add(value)
         return results
 
@@ -121,7 +136,8 @@ class EqualExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f == self.field for f in v.fields))
+            op=operator.eq
+        )
 
 class NotEqualExpression(Expression):
     OPERATOR = '!='
@@ -130,16 +146,21 @@ class NotEqualExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f != self.field for f in v.fields))
+            op=operator.ne
+        )
 
 class LikeExpression(Expression):
     OPERATOR = 'LIKE'
 
     @stacktrace
     def __call__(self, values):
+        def like(lhs, rhs):
+            return lhs.match(rhs)
+
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f.match(self.field) for f in v.fields))
+            op=like
+        )
 
 class LessThanExpression(Expression):
     OPERATOR = '<'
@@ -148,7 +169,8 @@ class LessThanExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f < self.field for f in v.fields))
+            op=operator.lt
+        )
 
 class LessThanOrEqualExpression(Expression):
     OPERATOR = '<='
@@ -157,7 +179,8 @@ class LessThanOrEqualExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f <= self.field for f in v.fields))
+            op=operator.le
+         )
 
 class GreaterThanExpression(Expression):
     OPERATOR = '>'
@@ -166,7 +189,8 @@ class GreaterThanExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f > self.field for f in v.fields))
+            op=operator.gt
+        )
 
 class GreaterThanOrEqualExpression(Expression):
     OPERATOR = '>='
@@ -175,5 +199,5 @@ class GreaterThanOrEqualExpression(Expression):
     def __call__(self, values):
         return self._get_values(
             values=values,
-            search_func=lambda v: any(f >= self.field for f in v.fields))
-
+            op=operator.ge
+        )

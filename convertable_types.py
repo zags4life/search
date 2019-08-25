@@ -1,6 +1,6 @@
 # convertable_types.py
 
-from collections.abc import Collection, Mapping
+from collections import Iterable, Mapping
 import logging
 
 from .fields import SearchField
@@ -14,7 +14,9 @@ def convert_dict(d):
     return [SearchField(k,v) for k,v in d.items()]
 
 def is_collection(v):
-    return isinstance(v, Collection) and not isinstance(v, str)
+    '''Determines if a value is a collection, and not a string.'''
+    return isinstance(v, Iterable) \
+        and not isinstance(v, str)
 
 class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
     '''Used to wrap objects as SearchDataProvider used for searching.
@@ -53,19 +55,28 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
             # Retrieve the fields from the object
             fields = obj.fields
 
-            # if fields is not a dict, raise an exception
-            if not isinstance(fields, Mapping):
+            # fields must be either a list of Field objects or a dictionary.
+            # Note, there is a performance hit for returning a dictionary.
+            if all(isinstance(f, SearchField) for f in fields):
+                self.__fields.extend(fields)
+            elif isinstance(fields, Mapping):
+                logger.warning(
+                    "Performance: {} implements 'fields' property " \
+                    'as a dict. Consider implementing as a list of Fields ' \
+                    'instead.'.format(obj.__class__.__name__))
+
+                # Convert the dict to a list of SearchField objects
+                self.__fields.extend(convert_dict(fields))
+            else:
                 raise InvalidFieldAttributeError(
                     "{} 'fields' property return an invalid type ('{}') - " \
                     "the fields property must return either a dict of " \
-                    "key/value pairs of a list of SearchField objects".format(
+                    "key/value pairs of a list of Field objects".format(
                         obj.__class__.__name__,
                         type(fields).__name__
                     )
                 )
 
-            # Convert the dict to a list of SearchField objects
-            self.__fields.extend(convert_dict(fields))
 
         # 4) If the object does not implement SearchDataProvider,
         #    iterate through all attributes and properties in the object.
@@ -85,16 +96,6 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
                 {key: value for key, value in obj.__dict__.items()
                     if not key.startswith('_')}
             ))
-
-        # Collections are not supported.  Verify fields
-        if any(is_collection(field.value) for field in self.__fields):
-            invalid_fields = [f.name for f in self.__fields if is_collection(f.value)]
-            self.__fields = [f for f in self.__fields if not is_collection(f.value)]
-
-            # Log error
-            msg = '{} contains invalid fields - ignoring fields "{}"'.format(
-                obj.__class__.__name__, ', '.join(invalid_fields))
-            logger.error(msg)
 
     @property
     def fields(self):
@@ -118,9 +119,10 @@ def implicit_conversion(func):
     When the func is called, the list of objects will be implicitly converted
     to a list of SearchFieldDataProviders
     '''
+
     def wrapper(self, values):
         # Ensure values is a list
-        if not isinstance(values, Collection):
+        if not is_collection(values):
             raise ValueError('values must be a collection')
 
         return [
@@ -129,7 +131,6 @@ def implicit_conversion(func):
                 {__ImplicitlyConvertedSearchDataProvider(v) for v in values}
             )
         ]
-
     return wrapper
 
 class InvalidFieldAttributeError(Exception):

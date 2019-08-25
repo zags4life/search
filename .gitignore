@@ -1,6 +1,7 @@
 # ingore __pycache__
 *.pc
 *.pyc
+*.pyo
 __pycache__/
 *.out
 parsetab.py
