@@ -22,6 +22,7 @@ DATE_FORMATS = (
     '%y%m%d',
 )
 
+
 def Date(date_str):
     if not date_str:
         return None
@@ -41,13 +42,17 @@ def Date(date_str):
 
     logger.error("Failed to parse date '{}'".format(date_strs))
 
+
 def verify_name_matches(func):
     '''Decorator which ensures the Field name and QueryField name matches.
     If true, call func, else return False
     '''
     def wrapper(self, other):
-        return func(self, other) if re.search(other.name, self.name) else False
+        return (func(self, other) 
+            if re.search(other.name, self.name) 
+            else False)
     return wrapper
+
 
 def convert_type(func):
     '''Decorator to convert QueryField value to that of their SearchField value
@@ -60,7 +65,7 @@ def convert_type(func):
     def wrapper(field, query_field):
         assert (isinstance(query_field, QueryField) and 
                 isinstance(field, SearchField)), \
-            'Invalid search field: {} - {}'.format(
+            'Invalid search field type: {} - {}'.format(
                 type(field), type(query_field))
 
         try:
@@ -75,6 +80,7 @@ def convert_type(func):
             )
             return False
     return wrapper
+
 
 class BaseField(object):
     def __init__(self, name, value):
@@ -118,16 +124,19 @@ class BaseField(object):
     @verify_name_matches
     def match(self, other):
         return re.search(str(other.value), str(self.value))
+        # return re.match(str(other.value), str(self.value))
+
 
 class SearchField(BaseField):
     '''Represents a searchable field'''
     pass
 
+
 class QueryField(BaseField):
     '''Represents a query field
 
-    Unlike BaseField, QueryField implements __enter__/__exit__ to allow of
-    intermediate type convertion, while ensuring the original value is properly
+    Unlike BaseField, QueryField is a context manager to allow of intermediate
+    type convertion, while ensuring the original value is properly
     rolled back after the operation is complete.
     '''
     def __init__(self, name, value):
@@ -143,6 +152,7 @@ class QueryField(BaseField):
         # Else, convert the string value to the same type as the value
         self.value = Date(self.value) if isinstance(value, (date, datetime)) \
             else type(value)(self.value)
+        self.value = 
         return self
 
     def __enter__(self):

@@ -8,24 +8,24 @@ from six import with_metaclass
 
 from .fields import QueryField
 
-stackdepth = 0
+STACKDEPTH = 0
 
 logger = logging.getLogger(__name__)
 
 def stacktrace(func):
     def print_stack(self, *args, **kwargs):
-        global stackdepth
+        global STACKDEPTH
 
         try:
             start_time = datetime.now()
-            logger.debug('{0}{1} {2}'.format('    ' * stackdepth, '>>>', str(self)))
+            logger.debug('{0}{1} {2}'.format('    ' * STACKDEPTH, '>>>', str(self)))
 
-            stackdepth += 1
+            STACKDEPTH += 1
             return func(self, *args, **kwargs)
         finally:
-            stackdepth -= 1
+            STACKDEPTH -= 1
             logger.debug('{0}{1} {2} ({3})'.format(
-                    '    ' * stackdepth,
+                    '    ' * STACKDEPTH,
                     '<<<',
                     str(self),
                     (datetime.now() - start_time)
@@ -38,6 +38,7 @@ def stacktrace(func):
         return func(self, *args, **kwargs)
     return wrapper
 
+
 class Condition(with_metaclass(ABCMeta, object)):
     '''An ABC for all search conditions'''
 
@@ -45,11 +46,15 @@ class Condition(with_metaclass(ABCMeta, object)):
     def __call__(self, values):
         pass
 
+
 #################################################
 # Logic Statements
 #################################################
 
 class NotStatement(Condition):
+    '''Logical NOT statement.  This class will NOT a condition, returning a
+    set of items that do not match the condition
+    '''
     def __init__(self, condition):
         super().__init__()
         self.condition = condition
@@ -61,7 +66,9 @@ class NotStatement(Condition):
     def __str__(self):
         return '[NOT {0.condition}]'.format(self)
 
+
 class AndStatement(Condition):
+    '''Logical AND statement.  This class will AND two sets (conditions) together'''
     def __init__(self, c1, c2):
         super(AndStatement, self).__init__()
         self.condition1 = c1
@@ -74,7 +81,9 @@ class AndStatement(Condition):
     def __str__(self):
         return "[{0.condition1} AND {0.condition2}]".format(self)
 
+
 class OrStatement(Condition):
+    '''Logical OR statement.  This class will OR two sets (conditions) together'''
     def __init__(self, c1, c2):
         super(OrStatement, self).__init__()
         self.condition1 = c1
@@ -93,33 +102,22 @@ class OrStatement(Condition):
 #################################################
 
 class Expression(Condition):
-    OPERATOR = None
+    EXPRESSION_NAME = None
 
     def __init__(self, lhs, rhs):
         super(Expression, self).__init__()
         self.field = QueryField(lhs, rhs)
 
-    def __str__(self):
-        assert self.__class__.OPERATOR
-        return '({} {} {})'.format(
-            self.field.name,
-            self.__class__.OPERATOR,
-            self.field.value)
-
-    def __repr__(self):
-        return '{}: "{}"'.format(self.__class__.__name__, str(self))
-
-    def _get_values(self, values, op):
+    def __call__(self, values):
         '''Returns a set of values which match search_func
 
         parameters:
             values - values to search_func
-            op - the operator function used to compare each field
         '''
 
         def check(v):
             for field in v.fields:
-                if op(field, self.field):
+                if self.OPERATOR(field, self.field):
                     return True
             return False
 
@@ -129,75 +127,50 @@ class Expression(Condition):
                 results.add(value)
         return results
 
-class EqualExpression(Expression):
-    OPERATOR = '='
+    def __str__(self):
+        assert self.__class__.EXPRESSION_NAME
+        return '({} {} {})'.format(
+            self.field.name,
+            self.__class__.EXPRESSION_NAME,
+            self.field.value)
 
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.eq
-        )
+    def __repr__(self):
+        return '{}: "{}"'.format(self.__class__.__name__, str(self))
+
+
+class EqualExpression(Expression):
+    EXPRESSION_NAME = '='
+    OPERATOR = operator.eq
+
 
 class NotEqualExpression(Expression):
-    OPERATOR = '!='
+    EXPRESSION_NAME = '!='
+    OPERATOR = operator.ne
 
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.ne
-        )
 
 class LikeExpression(Expression):
-    OPERATOR = 'LIKE'
+    EXPRESSION_NAME = 'LIKE'
 
-    @stacktrace
-    def __call__(self, values):
-        def like(lhs, rhs):
-            return lhs.match(rhs)
+    @staticmethod
+    def like(lhs, rhs):
+        return lhs.match(rhs)
+    OPERATOR = like
 
-        return self._get_values(
-            values=values,
-            op=like
-        )
 
 class LessThanExpression(Expression):
-    OPERATOR = '<'
-
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.lt
-        )
+    EXPRESSION_NAME = '<'
+    OPERATOR = operator.lt
 
 class LessThanOrEqualExpression(Expression):
-    OPERATOR = '<='
+    EXPRESSION_NAME = '<='
+    OPERATOR = operator.le
 
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.le
-         )
 
 class GreaterThanExpression(Expression):
-    OPERATOR = '>'
+    EXPRESSION_NAME = '>'
+    OPERATOR = operator.gt
 
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.gt
-        )
 
 class GreaterThanOrEqualExpression(Expression):
-    OPERATOR = '>='
-
-    @stacktrace
-    def __call__(self, values):
-        return self._get_values(
-            values=values,
-            op=operator.ge
-        )
+    EXPRESSION_NAME = '>='
+    OPERATOR = operator.gt

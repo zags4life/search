@@ -2,6 +2,7 @@
 
 from .convertable_types import implicit_conversion
 from .lexer import compile
+from .searchdataprovider import SearchDataProvider
 
 class Query(object):
     def __init__(self, query_str):
@@ -22,6 +23,9 @@ class Query(object):
 
     @implicit_conversion
     def __call__(self, values):
+        assert all(isinstance(v, SearchDataProvider) for v in values), \
+            "Values were not converted properly to SearchDataProvider"
+
         if not self.__condition:
             return values
         return self.__condition(values)
