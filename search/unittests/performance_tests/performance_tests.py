@@ -49,15 +49,13 @@ def execution_performance_test():
 
     total_time = timeit.timeit(
         """q(values)""",
-        setup="""from search.query import Query; 
-        q = Query('foo=bar'); 
-        values=[
-            {'x': 1, 'y': 2, 'foo': 3},
-            dict(x=1, y=2, foo='bar'),
-            dict(x='3', y=2, foo='gurp'),
-            dict(x=3, y=2, foo='gurp'),
-            [1,2,3,4],
-            {'name': 'Mike', 'fo0d': 'bar'},
+        setup="""from search.query import Query; q = Query('foo=bar'); values=[
+        {'x': 1, 'y': 2, 'foo': 3},
+        dict(x=1, y=2, foo='bar'),
+        dict(x='3', y=2, foo='gurp'),
+        dict(x=3, y=2, foo='gurp'),
+        [1,2,3,4],
+        {'name': 'Mike', 'fo0d': 'bar'},
         ]""",
         number=iterations) * 1000
 
