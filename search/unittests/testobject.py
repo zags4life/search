@@ -18,12 +18,19 @@ class _TestObject(object):
                 )
             )
 
-    __repr__ = __str__
 
 class TestSearchDataProvider(_TestObject, SearchDataProvider):
     @property
     def fields(self):
         return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
 
+
+class TestSearchDataFieldProvider(_TestObject, SearchDataProvider):
+    @property
+    def fields(self):
+        return [SearchField(k, v) for k,v in self.__dict__.items() if not k.startswith('_')]
+
+
 TestObject = TestSearchDataProvider
-# TestObject = _TestObject
+TestFieldObject = TestSearchDataFieldProvider
+TestObject = _TestObject

@@ -5,6 +5,7 @@ from datetime import datetime
 import logging
 import operator
 from six import with_metaclass
+import re
 
 from .fields import QueryField
 
@@ -109,21 +110,41 @@ class Expression(Condition):
         self.field = QueryField(lhs, rhs)
 
     def __call__(self, values):
-        '''Returns a set of values which match search_func
+        '''Returns a set of values which match search criteria
 
         parameters:
-            values - values to search_func
+            values - a list of values to evaluate
         '''
 
-        def check(v):
-            for field in v.fields:
-                if self.OPERATOR(field, self.field):
-                    return True
+        def _check(val):
+            '''Check the value'''
+            instance_fields = val.__dict__ if not isinstance(val, dict) else val
+            property_fields = {}
+
+            # If val is not a dict, update property_fields (?)
+            if not isinstance(val, dict):
+                property_fields = {
+                    k: getattr(val, k) 
+                    for k, v in val.__class__.__dict__.items() 
+                    if type(v) is property
+                }
+
+            # Iterate through all instance and property fields
+            for fields in [instance_fields, property_fields]:
+                assert isinstance(fields, dict), \
+                    f'Unexpected field type: Expected: {type(dict)}, Actual: {type(fields)}'
+
+                for k, v in fields.items():
+                    if re.search(self.field.name, k):
+                        with self.field:
+                            if self.field.convert_type(v) and \
+                                    self.OPERATOR(v, self.field.value):
+                                return True
             return False
 
         results = set()
         for value in values:
-            if check(value):
+            if _check(value):
                 results.add(value)
         return results
 
@@ -153,7 +174,7 @@ class LikeExpression(Expression):
 
     @staticmethod
     def like(lhs, rhs):
-        return lhs.match(rhs)
+        return re.search(rhs, str(lhs))
     OPERATOR = like
 
 
