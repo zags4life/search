@@ -88,7 +88,7 @@ def execution_performance_medium_test():
 @test
 def execution_performance_large_test():
     iterations = 10
-    count = 600000
+    count = 600000/6
 
     total_time = timeit.timeit(
         """q(values)""",
@@ -97,9 +97,55 @@ def execution_performance_large_test():
         dict(x=1, y=2, foo='bar'),
         dict(x='3', y=2, foo='gurp'),
         dict(x=3, y=2, foo='gurp'),
-        [1,2,3,4],
         {{'name': 'Mike', 'fo0d': 'bar'}},
-        ]*{0}""".format(int(count/6)),
+        ]*{0}""".format(int(count)),
+        number=iterations) * 1000
+
+    print("{0: >25}: {1:,}".format('Total iterations', iterations))
+    print("{0: >25}: {1:,}".format('Total items', count))
+    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+
+@test
+def execution_performance_large_TestObject_test():
+    iterations = 10
+    count = 600000/6
+
+    setup_str = """from search.query import Query; from search.unittests.testobject import TestObject; q = Query('foo=bar'); values=[
+            TestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+            TestObject(**dict(x=1, y=2, foo='bar')),
+            TestObject(**dict(x='3', y=2, foo='gurp')),
+            TestObject(**dict(x=3, y=2, foo='gurp')),
+            TestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+        ]*{0}""".format(int(count))
+
+    total_time = timeit.timeit(
+        stmt="q(values)",
+        setup=setup_str,
+        number=iterations) * 1000
+
+    print("{0: >25}: {1:,}".format('Total iterations', iterations))
+    print("{0: >25}: {1:,}".format('Total items', count))
+    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    
+
+@test
+def execution_performance_large_TestFieldObject_test():
+    iterations = 10
+    count = 600000/6
+
+    setup_str = """from search.query import Query; from search.unittests.testobject import TestFieldObject; q = Query('foo=bar'); values=[
+            TestFieldObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+            TestFieldObject(**dict(x=1, y=2, foo='bar')),
+            TestFieldObject(**dict(x='3', y=2, foo='gurp')),
+            TestFieldObject(**dict(x=3, y=2, foo='gurp')),
+            TestFieldObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+        ]*{0}""".format(int(count))
+
+    total_time = timeit.timeit(
+        stmt="q(values)",
+        setup=setup_str,
         number=iterations) * 1000
 
     print("{0: >25}: {1:,}".format('Total iterations', iterations))
