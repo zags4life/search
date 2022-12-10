@@ -1,6 +1,6 @@
 # convertable_types.py
 
-from collections import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 import logging
 
 from .fields import SearchField
