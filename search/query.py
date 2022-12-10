@@ -1,7 +1,7 @@
 # query.py
 
-from .convertable_types import implicit_conversion
 from .lexer import compile
+from .searchdataprovider import SearchDataProvider
 
 class Query(object):
     def __init__(self, query_str):
@@ -20,11 +20,31 @@ class Query(object):
                         query_str.replace('\n', ''))
                 )
 
-    @implicit_conversion
     def __call__(self, values):
         if not self.__condition:
             return values
-        return self.__condition(values)
+
+        converted_values = []
+        for value in values:
+            if isinstance(value, dict):
+                converted_values.append(WrapperObject(value))
+            elif isinstance(value, list):
+                converted_values.append(
+                    WrapperObject({str(k):v for k,v in enumerate(value)})
+                )
+            else:
+                converted_values.append(value)
+        values = converted_values
+        
+        results = self.__condition(values)
+        converted_values = []
+        for result in results:
+            if isinstance(result, WrapperObject):
+                converted_values.append(result.original_object)
+            else:
+                converted_values.append(result)
+        results = converted_values
+        return results
 
     def __str__(self):
         return 'QUERY: {}'.format(self.__condition)
@@ -43,8 +63,17 @@ class Query(object):
         if len(stack) != 0:
             raise InvalidQueryError('Unbalanced parenthesis')
 
+
+class WrapperObject:
+    def __init__(self, value):
+        for k, v in value.items():
+            setattr(self, k, v)
+        self.original_object = value
+
+
 class InvalidQueryError(Exception):
     pass
+
 
 def query(query_str, values):
     return Query(query_str)(values)

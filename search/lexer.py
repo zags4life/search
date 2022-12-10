@@ -17,7 +17,7 @@ tokens = (
 )
 
 # Tokens
-t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,]+'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,\?]+'
 t_LT        = r'\s*<\s*'
 t_LTE       = r'\s*<=\s*'
 t_GT        = r'\s*>\s*'
@@ -93,7 +93,7 @@ def p_expression_group(p):
     'expression : LPAREN expression RPAREN'
     p[0] = p[2]
 
-def p_expr_stmt(p):
+def p_express_statement(p):
     'expression : statement'
     p[0] = p[1]
 

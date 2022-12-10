@@ -63,11 +63,11 @@ if __name__ == '__main__':
 
     parser = ArgumentParser()
     parser.add_argument('cmds', nargs='*')
-    parser.add_argument('-d', '--debug', action='store_true')
-    parser.add_argument('-dr', '--dryrun', action='store_true')
+    parser.add_argument('-d', '--dryrun', action='store_true')
+    parser.add_argument('-l', '--logging-level', default='info')
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    logging.basicConfig(level=getattr(logging, args.logging_level.upper()))
 
     cmds = ' '.join(args.cmds)
 

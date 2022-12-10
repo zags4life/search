@@ -49,5 +49,12 @@ class TestSearchDataProvider(_TestObject, SearchDataProvider):
         ]
 
 
+class TestSearchDataFieldProvider(_TestObject, SearchDataProvider):
+    @property
+    def fields(self):
+        return [SearchField(k, v) for k,v in self.__dict__.items() if not k.startswith('_')]
+
+
 TestObject = TestSearchDataProvider
-# TestObject = _TestObject
+TestFieldObject = TestSearchDataFieldProvider
+TestObject = _TestObject

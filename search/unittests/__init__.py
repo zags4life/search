@@ -29,4 +29,5 @@ def run(tests_to_run):
             logger.info(f'{test.__name__} - PASS\n')
         except AssertionError as e:
             logger.error(e)
+            print(f'{test.__name__} - FAIL')
     return result

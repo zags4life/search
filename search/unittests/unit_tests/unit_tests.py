@@ -1,11 +1,11 @@
 # unit_tests/unit_tests.py
-
 import logging
 
 from .. import test, TestObject
 from ... import query
 
 logger = logging.getLogger(__name__)
+
 
 def log_results(expected, actual):
     logger.debug('Found results:')
@@ -15,7 +15,7 @@ def log_results(expected, actual):
     logger.debug('Expected results:')
     for result in expected:
         logger.debug(f'    {result}')
-        
+
 
 def validate_results(expected, actual):
     log_results(expected, actual)
@@ -64,7 +64,7 @@ def unittest_test_objects():
 
     results = query(query_str, values)
     validate_results(expected_results, results)
-    
+
 
 @test
 def unittest_mix_objects():
@@ -86,10 +86,10 @@ def unittest_mix_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
+    results = query(query_str, values)
     validate_results(expected_results, results)
-    
-    
+
+
 @test
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
@@ -106,5 +106,5 @@ def unittest_mix_objects_no_results():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
+    results = query(query_str, values)
     validate_results(expected_results, results)
