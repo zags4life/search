@@ -4,7 +4,7 @@ from datetime import datetime
 import logging
 import re
 
-from .testobject import TestObject
+from .testobject import TestObject, TestFieldObject
 from ..query import Query, InvalidQueryError
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ def unittest(func):
     REGISTERED_UNITTESTS.append(func)
 test = unittest
 
+
 def run(tests_to_run):
     result = 0
     for test in REGISTERED_UNITTESTS:
@@ -24,10 +25,9 @@ def run(tests_to_run):
             continue
 
         try:
-            print(f'\n{test.__name__}')
+            logger.info(f'{test.__name__}')
             test()
-            print(f'{test.__name__} - pass')
+            logger.info(f'{test.__name__} - PASS\n')
         except AssertionError as e:
             logger.error(e)
-            print(f'{test.__name__} - FAIL')
     return result
