@@ -24,9 +24,9 @@ def run(tests_to_run):
             continue
 
         try:
-            print('Running test - {}'.format(test.__name__))
+            logger.info(f'{test.__name__}')
             test()
-            print('Test complete - {}\n'.format(test.__name__))
+            logger.info(f'{test.__name__} - PASS\n')
         except AssertionError as e:
             logger.error(e)
     return result

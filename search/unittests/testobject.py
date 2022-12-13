@@ -1,5 +1,6 @@
 # unittests/testobject.py
 from ..fields import SearchField
+from ..query import query
 from ..searchdataprovider import SearchDataProvider
 
 class _TestObject(object):
@@ -7,23 +8,46 @@ class _TestObject(object):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+    
+        if len(self.__dict__.items()) != len(other.__dict__.items()):
+            return False
+
+        match = True
+        for k in self.__dict__.keys():
+            match &= k in other.__dict__
+
+        if match:
+            for attr, value in self.__dict__.items():
+                other_value = getattr(other, attr)
+                match &= value == other_value
+
+        return match
+
     def __str__(self):
-        values = ['{}={}'.format(k,v) for k,v in self.__dict__.items()
+        values = [f'{k}={v}' for k,v in self.__dict__.items()
             if not callable(v) and not k.startswith('_')]
 
-        return 'TestObject: {}'.format(
+        return '{1}({0})'.format(
             ', '.join(
-                ['{}={}'.format(k,v) for k,v in self.__dict__.items()
+                [f'{k}={v}' for k,v in self.__dict__.items()
                     if not callable(v) and not k.startswith('_')]
-                )
+                ),
+            self.__class__.__name__
             )
-
     __repr__ = __str__
+
 
 class TestSearchDataProvider(_TestObject, SearchDataProvider):
     @property
     def fields(self):
-        return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
+        return [
+            SearchField(k,v) for k,v in self.__dict__.items()
+            if not k.startswith('_')
+        ]
+
 
 TestObject = TestSearchDataProvider
 # TestObject = _TestObject

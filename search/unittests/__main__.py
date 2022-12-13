@@ -35,6 +35,9 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--tests', default='.*')
     args = parser.parse_args()
 
-    logging.basicConfig(level=getattr(logging, args.log_level.upper()))
+    logging.basicConfig(
+        level=getattr(logging, args.log_level.upper()),
+        format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+    )
 
     exit(main(args.tests))

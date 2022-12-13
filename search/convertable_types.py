@@ -1,7 +1,11 @@
 # convertable_types.py
-
-from collections import Iterable, Mapping
+import sys
 import logging
+
+if sys.version_info[0] < 3:
+    from collections import Iterable, Mapping  # python 2
+else:
+    from collections.abc import Iterable, Mapping
 
 from .fields import SearchField
 from .searchdataprovider import SearchDataProvider
@@ -61,9 +65,10 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
                 self.__fields.extend(fields)
             elif isinstance(fields, Mapping):
                 logger.warning(
-                    "Performance: {} implements 'fields' property " \
+                    f"Performance: {obj.__class__.__name__} implements 'fields' property " \
                     'as a dict. Consider implementing as a list of Fields ' \
-                    'instead.'.format(obj.__class__.__name__))
+                    'instead.'
+                )
 
                 # Convert the dict to a list of SearchField objects
                 self.__fields.extend(convert_dict(fields))
