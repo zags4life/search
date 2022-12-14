@@ -107,11 +107,6 @@ class Operator(Condition):
         parameters:
             values - a list of values to evaluate
         '''
-        def check(v):
-            for field in v.fields:
-                if self.OPERATOR(field, self.field):
-                    return True
-
         def _check(val):
             '''Check the value'''
             instance_fields = val.__dict__ if not isinstance(val, dict) else val
