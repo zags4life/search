@@ -7,37 +7,14 @@ import operator
 from six import with_metaclass
 import re
 
+from .decorators import stacktrace
 from .fields import QueryField
-
-STACKDEPTH = 0
 
 logger = logging.getLogger(__name__)
 
-def stacktrace(func):
-    def print_stack(self, *args, **kwargs):
-        global STACKDEPTH
-
-        try:
-            start_time = datetime.now()
-            logger.debug('{0}{1} {2}'.format('    ' * STACKDEPTH, '>>>', str(self)))
-
-            STACKDEPTH += 1
-            return func(self, *args, **kwargs)
-        finally:
-            STACKDEPTH -= 1
-            logger.debug('{0}{1} {2} ({3})'.format(
-                    '    ' * STACKDEPTH,
-                    '<<<',
-                    str(self),
-                    (datetime.now() - start_time)
-                )
-            )
-
-    def wrapper(self, *args, **kwargs):
-        if __debug__:
-            return print_stack(self, *args, **kwargs)
-        return func(self, *args, **kwargs)
-    return wrapper
+#################################################
+# Base class
+#################################################
 
 
 class Condition(with_metaclass(ABCMeta, object)):
@@ -49,7 +26,7 @@ class Condition(with_metaclass(ABCMeta, object)):
 
 
 #################################################
-# Logic Statements
+# Logical Conditions
 #################################################
 
 class NotStatement(Condition):
@@ -60,12 +37,12 @@ class NotStatement(Condition):
         super().__init__()
         self.condition = condition
 
-    @stacktrace
+    @stacktrace(logger)
     def __call__(self, values):
         return values - (values & self.condition(values))
 
     def __str__(self):
-        return '[NOT {0.condition}]'.format(self)
+        return f'[NOT {self.condition}]'
 
 
 class AndStatement(Condition):
@@ -75,12 +52,12 @@ class AndStatement(Condition):
         self.condition1 = c1
         self.condition2 = c2
 
-    @stacktrace
+    @stacktrace(logger)
     def __call__(self, values):
         return self.condition1(values) & self.condition2(values)
 
     def __str__(self):
-        return "[{0.condition1} AND {0.condition2}]".format(self)
+        return f"[{self.condition1} AND {self.condition2}]"
 
 
 class OrStatement(Condition):
@@ -90,38 +67,52 @@ class OrStatement(Condition):
         self.condition1 = c1
         self.condition2 = c2
 
-    @stacktrace
+    @stacktrace(logger)
     def __call__(self, values):
         return self.condition1(values) | self.condition2(values)
 
     def __str__(self):
-        return "[{0.condition1} OR {0.condition2}]".format(self)
+        return f"[{self.condition1} OR {self.condition2}]"
 
 
 #################################################
-# Arithmetic Expressions
+# Arithmetic Operators
 #################################################
 
-class Expression(Condition):
+class Operator(Condition):
+    EXPRESSION = None
+    OPERATOR = None
     EXPRESSION_NAME = None
 
     def __init__(self, lhs, rhs):
-        super(Expression, self).__init__()
+        super(Operator, self).__init__()
         self.field = QueryField(lhs, rhs)
 
+    def __str__(self):
+        assert self.__class__.EXPRESSION, \
+            f'{self.__class__.__name__} does not implement EXPRESSION'
+        return f'({self.field.name} {self.__class__.EXPRESSION} ' \
+            f'{self.field.value})'
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}: "{self}"'
+        
+    @stacktrace(logger)
     def __call__(self, values):
-        '''Returns a set of values which match search criteria
+        return self._get_values(values)
+
+    def _get_values(self, values):
+        '''Returns a set of values which match search_func
 
         parameters:
             values - a list of values to evaluate
         '''
-
         def _check(val):
             '''Check the value'''
             instance_fields = val.__dict__ if not isinstance(val, dict) else val
             property_fields = {}
 
-            # If val is not a dict, update property_fields (?)
+            # If val is not a dict, update property_fields
             if not isinstance(val, dict):
                 property_fields = {
                     k: getattr(val, k) 
@@ -135,6 +126,9 @@ class Expression(Condition):
                     f'Unexpected field type: Expected: {type(dict)}, Actual: {type(fields)}'
 
                 for k, v in fields.items():
+                    # Is the field name match the key.  If True,
+                    # Convert the search field to the same type as value,
+                    # then apply the operator
                     if re.search(self.field.name, k):
                         with self.field:
                             if self.field.convert_type(v) and \
@@ -159,17 +153,17 @@ class Expression(Condition):
         return '{}: "{}"'.format(self.__class__.__name__, str(self))
 
 
-class EqualExpression(Expression):
+class EqualOperator(Operator):
     EXPRESSION_NAME = '='
     OPERATOR = operator.eq
 
 
-class NotEqualExpression(Expression):
+class NotEqualOperator(Operator):
     EXPRESSION_NAME = '!='
     OPERATOR = operator.ne
 
 
-class LikeExpression(Expression):
+class LikeOperator(Operator):
     EXPRESSION_NAME = 'LIKE'
 
     @staticmethod
@@ -178,20 +172,20 @@ class LikeExpression(Expression):
     OPERATOR = like
 
 
-class LessThanExpression(Expression):
+class LessThanOperator(Operator):
     EXPRESSION_NAME = '<'
     OPERATOR = operator.lt
 
-class LessThanOrEqualExpression(Expression):
+class LessThanOrEqualOperator(Operator):
     EXPRESSION_NAME = '<='
     OPERATOR = operator.le
 
 
-class GreaterThanExpression(Expression):
+class GreaterThanOperator(Operator):
     EXPRESSION_NAME = '>'
     OPERATOR = operator.gt
 
 
-class GreaterThanOrEqualExpression(Expression):
+class GreaterThanOrEqualOperator(Operator):
     EXPRESSION_NAME = '>='
-    OPERATOR = operator.gt
+    OPERATOR = operator.ge
