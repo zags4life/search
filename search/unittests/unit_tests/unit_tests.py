@@ -216,5 +216,55 @@ def unittest_int_or_parans_query():
         {'name': 'Mike', 'fo0d': 'bar'},
     ]
 
-    results = query(query_str, values)
+    results = query(query_str, values)    
+    validate_results(expected_results, results)
+    
+    
+@test
+def unittest_lists_and_dicts_case_insensitive_regex():
+    query_str = 'x = 3 or (name like (?i)mike and ^fo{2})'
+
+    expected_results = [
+        dict(x=3, y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x=3, y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    results = query(query_str, values)    
+    validate_results(expected_results, results)
+    
+    
+@test
+def unittest_lists_and_dicts_case_sensitive_regex():
+    query_str = 'x = 3 or (name like mike and ^fo{2})'
+
+    expected_results = [
+        dict(x=3, y=2, foo='gurp'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x=3, y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    results = query(query_str, values)    
     validate_results(expected_results, results)

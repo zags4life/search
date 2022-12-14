@@ -31,7 +31,7 @@ def main(tests_to_run):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--log-level', choices=['error', 'warning', 'info', 'debug'], default='warning')
+    parser.add_argument('-l', '--log-level', choices=['error', 'warning', 'info', 'debug'], default='info')
     parser.add_argument('-lf', '--log-file')
     parser.add_argument('-t', '--tests', default='.*')
     args = parser.parse_args()
