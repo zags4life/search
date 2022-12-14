@@ -42,7 +42,7 @@ class NotStatement(Condition):
         return values - (values & self.condition(values))
 
     def __str__(self):
-        return '[NOT {0.condition}]'.format(self)
+        return f'[NOT {self.condition}]'
 
 
 class AndStatement(Condition):
@@ -57,7 +57,7 @@ class AndStatement(Condition):
         return self.condition1(values) & self.condition2(values)
 
     def __str__(self):
-        return "[{0.condition1} AND {0.condition2}]".format(self)
+        return f"[{self.condition1} AND {self.condition2}]"
 
 
 class OrStatement(Condition):
@@ -72,7 +72,7 @@ class OrStatement(Condition):
         return self.condition1(values) | self.condition2(values)
 
     def __str__(self):
-        return "[{0.condition1} OR {0.condition2}]".format(self)
+        return f"[{self.condition1} OR {self.condition2}]"
 
 
 #################################################
@@ -80,6 +80,7 @@ class OrStatement(Condition):
 #################################################
 
 class Operator(Condition):
+    EXPRESSION = None
     OPERATOR = None
     EXPRESSION_NAME = None
 
@@ -88,12 +89,15 @@ class Operator(Condition):
         self.field = QueryField(lhs, rhs)
 
     def __str__(self):
-        assert self.__class__.OPERATOR
-        return f'({self.field.name} {self.__class__.OPERATOR} {self.field.value})'
+        assert self.__class__.EXPRESSION, \
+            f'{self.__class__.__name__} does not implement EXPRESSION'
+        return f'({self.field.name} {self.__class__.EXPRESSION} ' \
+            f'{self.field.value})'
 
     def __repr__(self):
         return f'{self.__class__.__name__}: "{self}"'
-
+        
+    @stacktrace(logger)
     def __call__(self, values):
         return self._get_values(values)
 
@@ -139,7 +143,6 @@ class Operator(Condition):
             if _check(value):
                 results.add(value)
         return results
-
 
     def __str__(self):
         assert self.__class__.EXPRESSION_NAME
@@ -187,4 +190,4 @@ class GreaterThanOperator(Operator):
 
 class GreaterThanOrEqualOperator(Operator):
     EXPRESSION_NAME = '>='
-    OPERATOR = operator.gt
+    OPERATOR = operator.ge
