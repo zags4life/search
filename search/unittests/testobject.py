@@ -1,10 +1,9 @@
 # unittests/testobject.py
 from ..fields import SearchField
 from ..query import query
-from ..searchdataprovider import SearchDataProvider
 
 
-class _TestObject(object):
+class TestObject(object):
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
@@ -42,21 +41,4 @@ class _TestObject(object):
             )
     __repr__ = __str__
 
-
-class TestSearchDataProvider(_TestObject, SearchDataProvider):
-    @property
-    def fields(self):
-        return [
-            SearchField(k,v) for k,v in self.__dict__.items()
-            if not k.startswith('_')
-        ]
-
-
-class TestSearchDataFieldProvider(_TestObject, SearchDataProvider):
-    @property
-    def fields(self):
-        return [SearchField(k, v) for k,v in self.__dict__.items() if not k.startswith('_')]
-
-
-TestFieldObject = TestSearchDataFieldProvider
-TestObject = _TestObject
+TestFieldObject = TestObject

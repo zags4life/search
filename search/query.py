@@ -1,7 +1,6 @@
 # query.py
 
 from .lexer import compile
-from .searchdataprovider import SearchDataProvider
 
 class Query(object):
     def __init__(self, query_str):
