@@ -8,7 +8,6 @@ import logging
 import sys
 import re
 
-
 from . import search
 from .query import Query, InvalidQueryError
 from .unittests.testobject import TestObject
@@ -16,6 +15,7 @@ from .unittests.testobject import TestObject
 
 if sys.version_info[0] >= 3:
     raw_input = input  # use input() on Python 3
+
 
 def execute_query(search_str):
     values = [

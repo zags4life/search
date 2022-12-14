@@ -8,8 +8,8 @@ from .testobject import TestObject, TestFieldObject
 from ..query import Query, InvalidQueryError
 
 logger = logging.getLogger(__name__)
-
 REGISTERED_UNITTESTS = []
+
 
 def unittest(func):
     '''Decorator to register tests

@@ -86,7 +86,6 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
                     )
                 )
 
-
         # 4) If the object does not implement SearchDataProvider,
         #    iterate through all attributes and properties in the object.
         #    For all properties and public (i.e. does not start with '_')
@@ -94,17 +93,21 @@ class __ImplicitlyConvertedSearchDataProvider(SearchDataProvider):
         #    the list of fields.
         else:
             # Convert all properties to SearchFields
-            self.__fields.extend(convert_dict(
-                {key: getattr(obj, key) for key, value in
-                    obj.__class__.__dict__.items()
-                    if type(value) is property}
-            ))
+            self.__fields.extend(
+                convert_dict(
+                    {key: getattr(obj, key) for key, value in
+                        obj.__class__.__dict__.items()
+                        if type(value) is property}
+                )
+            )
 
             # Convert all public attributes to SearchFields
-            self.__fields.extend(convert_dict(
-                {key: value for key, value in obj.__dict__.items()
-                    if not key.startswith('_')}
-            ))
+            self.__fields.extend(
+                convert_dict(
+                    {key: value for key, value in obj.__dict__.items()
+                        if not key.startswith('_')}
+                )
+            )
 
     @property
     def fields(self):
