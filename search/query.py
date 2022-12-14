@@ -25,25 +25,20 @@ class Query(object):
 
         converted_values = []
         for value in values:
-            if isinstance(value, dict):
-                converted_values.append(WrapperObject(value))
-            elif isinstance(value, list):
-                converted_values.append(
-                    WrapperObject({str(k):v for k,v in enumerate(value)})
-                )
+            if isinstance(value, (list, dict)):
+                converted_values.append(DictHashableWrapperObject(value))
             else:
                 converted_values.append(value)
         values = converted_values
         
         results = self.__condition(values)
-        converted_values = []
+        converted_results = []
         for result in results:
-            if isinstance(result, WrapperObject):
-                converted_values.append(result.original_object)
+            if isinstance(result, DictHashableWrapperObject):
+                converted_results.append(result.original_object)
             else:
-                converted_values.append(result)
-        results = converted_values
-        return results
+                converted_results.append(result)
+        return converted_results
 
     def __str__(self):
         return 'QUERY: {}'.format(self.__condition)
@@ -63,8 +58,11 @@ class Query(object):
             raise InvalidQueryError('Unbalanced parenthesis')
 
 
-class WrapperObject:
+class DictHashableWrapperObject:
     def __init__(self, value):
+        if isinstance(value, list):
+            value = {str(k):v for k,v in enumerate(value)}
+
         for k, v in value.items():
             setattr(self, k, v)
         self.original_object = value

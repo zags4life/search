@@ -112,7 +112,7 @@ class Operator(Condition):
             instance_fields = val.__dict__ if not isinstance(val, dict) else val
             property_fields = {}
 
-            # If val is not a dict, update property_fields (?)
+            # If val is not a dict, update property_fields
             if not isinstance(val, dict):
                 property_fields = {
                     k: getattr(val, k) 
@@ -126,6 +126,9 @@ class Operator(Condition):
                     f'Unexpected field type: Expected: {type(dict)}, Actual: {type(fields)}'
 
                 for k, v in fields.items():
+                    # Is the field name match the key.  If True,
+                    # Convert the search field to the same type as value,
+                    # then apply the operator
                     if re.search(self.field.name, k):
                         with self.field:
                             if self.field.convert_type(v) and \
