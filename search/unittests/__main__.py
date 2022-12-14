@@ -1,14 +1,14 @@
 # __main__.py
-
 import argparse
 import importlib
 import logging
 import os
 import re
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from . import run
+
 
 def main(tests_to_run):
     curdir = os.path.abspath(os.path.curdir)
@@ -21,7 +21,7 @@ def main(tests_to_run):
 
         for file in [f for f in files if f.endswith(".py") and not f.startswith('__')]:
             file = '{}.{}'.format(path.replace('\\', '.'), file.replace('.py', ''))
-            log.debug('importing module {} from package {}'.format(file, package))
+            logger.debug('importing module {} from package {}'.format(file, package))
 
             # import module
             importlib.import_module(file, package)
@@ -29,15 +29,20 @@ def main(tests_to_run):
     # run all tests
     run(tests_to_run)
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--log-level', choices=['error', 'warning', 'info', 'debug'], default='warning')
+    parser.add_argument('-l', '--log-level', 
+        choices=['error', 'warning', 'info', 'debug'], default='info')
+    parser.add_argument('-lf', '--log-file')
     parser.add_argument('-t', '--tests', default='.*')
     args = parser.parse_args()
 
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
-        format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+        format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+        filename=args.log_file,
+        filemode='a'
     )
 
     exit(main(args.tests))
