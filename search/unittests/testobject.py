@@ -1,4 +1,6 @@
 # unittests/testobject.py
+import random
+
 from ..fields import SearchField
 from ..query import query
 
