@@ -1,5 +1,4 @@
 # unit_tests/unit_tests.py
-
 import logging
 
 from .. import test, TestObject, TestFieldObject
@@ -174,23 +173,23 @@ def unittest_int_and_query():
 
 
 @test
-def unittest_int_or_query():
-    ''''''
-    query_str = 'x = 1 or y <= 5'
+def unittest_mix_objects():
+    query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
+
     expected_results = [
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=4, foo='bar'),
-        dict(x='3', y=5, foo='gurp'),
-        dict(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
+        dict(x=3, y=2, foo='gurp', name='mike'),
+        TestObject(x=3, y=2, foo='gurp', name='Mike'),
     ]
 
-    values=[
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=4, foo='bar'),
-        dict(x='3', y=5, foo='gurp'),
+    values = [
+        TestObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
+        dict(x=3, y=2, foo='gurp', name='mike'),
+        TestObject(x=3, y=2, foo='gurp', name='Mike'),
         dict(x=3, y=2, foo='gurp'),
-        [1,2,3,4],
-        {'name': 'Mike', 'fo0d': 'bar'},
+        TestObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp'),
     ]
 
     results = query(query_str, values)
@@ -198,25 +197,22 @@ def unittest_int_or_query():
 
 
 @test
-def unittest_int_or_parans_query():
-    ''''''
-    query_str = 'x = 1 or (y <= 5 and y > 2)'
-    expected_results = [
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=4, foo='bar'),
-        dict(x='3', y=5, foo='gurp'),
-    ]
+def unittest_mix_objects_no_results():
+    query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
-    values=[
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=4, foo='bar'),
-        dict(x='3', y=5, foo='gurp'),
+    expected_results = []
+
+    values = [
+        TestObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
+        dict(x=3, y=2, foo='gurp', name='mike'),
+        TestObject(x=3, y=2, foo='gurp', name='Mike'),
         dict(x=3, y=2, foo='gurp'),
-        [1,2,3,4],
-        {'name': 'Mike', 'fo0d': 'bar'},
+        TestObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
+    results = query(query_str, values)
     validate_results(expected_results, results)
     
     
@@ -266,5 +262,5 @@ def unittest_lists_and_dicts_case_sensitive_regex():
         dict(x=9, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
+    results = query(query_str, values)
     validate_results(expected_results, results)
