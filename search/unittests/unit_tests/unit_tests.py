@@ -151,23 +151,21 @@ def unittest_empty_query():
 
 
 @test
-def unittest_test_objects():
-    query_str = 'name like (?i)mike and ^fo{2}'
-
+def unittest_int_and_query():
+    ''''''
+    query_str = 'x = 1 and y <= 5'
     expected_results = [
-        TestObject(x=3, y=2, foo='gurp', name='mIke'),
-        TestObject(x=3, y=2, foo='gurp', name='mike'),
-        TestObject(x=3, y=2, foo='gurp', name='Mike'),
+        {'x': 1, 'y': 2, 'foo': 3},
+        dict(x=1, y=4, foo='bar')
     ]
 
-    values = [
-        TestObject(x=3, y=2, foo='gurp'),
-        TestObject(x=3, y=2, foo='gurp', name='mIke'),
-        TestObject(x=3, y=2, foo='gurp', name='mike'),
-        TestObject(x=3, y=2, foo='gurp', name='Mike'),
-        TestObject(x=3, y=2, foo='gurp'),
-        TestObject(x=3, y=2, foo='gurp'),
-        TestObject(x=3, y=2, foo='gurp'),
+    values=[
+        {'x': 1, 'y': 2, 'foo': 3},
+        dict(x=1, y=4, foo='bar'),
+        dict(x='3', y=5, foo='gurp'),
+        dict(x=3, y=2, foo='gurp'),
+        [1,2,3,4],
+        {'name': 'Mike', 'fo0d': 'bar'},
     ]
 
     results = query(query_str, values)
