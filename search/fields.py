@@ -43,31 +43,15 @@ def Date(date_str):
     logger.error("Failed to parse date '{}'".format(date_strs))
 
 
-class BaseField(object):
+class Field:
     '''Represents a field, containing a name and a value, to be used for
     comparisons.  This class provides helper equality / inequality operator
     to provide a common, unified, interface for comparing unlike objects
     '''
     def __init__(self, name, value):
+        assert isinstance(value, str), 'value must be of type str'
         self.name = str(name)
         self.value = value
-
-
-class SearchField(BaseField):
-    '''Represents a searchable field'''
-    pass
-
-
-class QueryField(BaseField):
-    '''Represents a query field
-
-    Unlike BaseField, QueryField is a context manager to allow of intermediate
-    type convertion, while ensuring the original value is properly
-    rolled back after the operation is complete.
-    '''
-    def __init__(self, name, value):
-        assert isinstance(value, str), 'value must be of type str'
-        super().__init__(name, value)
 
     def convert_type(self, value):
         '''Call operator - converts the underlying string value to the 

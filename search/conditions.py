@@ -8,7 +8,7 @@ from six import with_metaclass
 import re
 
 from .decorators import stacktrace
-from .fields import QueryField
+from .fields import Field
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class Operator(Condition):
 
     def __init__(self, lhs, rhs):
         super(Operator, self).__init__()
-        self.field = QueryField(lhs, rhs)
+        self.field = Field(lhs, rhs)
 
     @stacktrace(logger)
     def __call__(self, values):
