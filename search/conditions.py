@@ -8,7 +8,7 @@ from six import with_metaclass
 import re
 
 from .decorators import stacktrace
-from .fields import Field
+from .field import Field
 
 logger = logging.getLogger(__name__)
 
