@@ -1,23 +1,28 @@
 # operator_unittests.py
 
-from .. import test, TestObject, TestFieldObject
-from ... import query
+from .. import unittest
+from ..testobject import (
+    TestObject, 
+    TestFieldObject, 
+    TestPropertyObject
+)
+from .utils import run_unittest_and_verify_results
 
 
-from .utils import validate_results
-
-@test
+@unittest
 def unittest_equals():
     query_str = 'x=3'
 
     expected_results = [
-        TestObject(x=3, y=2, foo='gurp'),
+        TestPropertyObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
         TestObject(x=3, y=2, foo='gurp', name='mIke'),
         TestObject(x=3, y=2, foo='gurp', name='mike'),
     ]
 
     values = [
-        TestObject(x=3, y=2, foo='gurp'),
+        TestPropertyObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
         TestObject(x=3, y=2, foo='gurp', name='mIke'),
         TestObject(x=3, y=2, foo='gurp', name='mike'),
         TestObject(x=1, y=2, foo='gurp', name='Mike'),
@@ -26,11 +31,10 @@ def unittest_equals():
         TestObject(x=1, y=2, foo='gurp'),
     ]
     
-    results = query(query_str, values)
-    validate_results(expected_results, results)
-    
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
-@test
+
+@unittest
 def unittest_not_equals():
     query_str = 'x != 3'
 
@@ -48,12 +52,11 @@ def unittest_not_equals():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=1, y=2, foo='gurp'),
     ]
-    
-    results = query(query_str, values)
-    validate_results(values[3:], results)
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest
 def unittest_less_than():
     query_str = 'x < 3'
 
@@ -65,13 +68,12 @@ def unittest_less_than():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=1, y=2, foo='gurp'),
     ]
-    
-    results = query(query_str, values)
-    validate_results(values[3:], results)
-    
+    expected_results = values[3:]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest
 def unittest_less_than_or_equal():
     query_str = 'x <= 3'
 
@@ -83,13 +85,12 @@ def unittest_less_than_or_equal():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=4, y=2, foo='gurp'),
     ]
-    
-    results = query(query_str, values)
-    validate_results(values[:-1], results)
-    
+    expected_results = values[:-1]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest
 def unittest_greater_than():
     query_str = 'x > 3'
 
@@ -101,12 +102,12 @@ def unittest_greater_than():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=4, y=2, foo='gurp'),
     ]
-    
-    results = query(query_str, values)
-    validate_results(values[-1:], results)
+    expected_results = values[-1:]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
     
 
-@test
+@unittest
 def unittest_greater_than_or_equal():
     query_str = 'x >= 3'
 
@@ -118,12 +119,12 @@ def unittest_greater_than_or_equal():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=4, y=2, foo='gurp'),
     ]
+    expected_results = values[:3] + values[-1:]
     
-    results = query(query_str, values)
-    validate_results(values[:3] + values[-1:], results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest
 def unittest_like():
     query_str = 'name like Mike'
 
@@ -135,6 +136,6 @@ def unittest_like():
         TestObject(x=2, y=2, foo='gurp'),
         TestObject(x=4, y=2, foo='gurp'),
     ]
-    
-    results = query(query_str, values)
-    validate_results(values[3:4], results)
+    expected_results = values[3:4]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)

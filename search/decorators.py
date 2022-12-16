@@ -21,7 +21,7 @@ def stacktrace(logger):
                 STACKDEPTH -= 1
                 
                 logger.debug(
-                    f"({' ' * (4 * STACKDEPTH)}<<< {self} "
+                    f"{' ' * (4 * STACKDEPTH)}<<< {self} "
                     f"({datetime.now() - start_time})"
                 )
 

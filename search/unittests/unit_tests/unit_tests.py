@@ -2,11 +2,10 @@
 import logging
 
 from .. import test, TestObject, TestFieldObject
-from ... import query
+from .utils import run_unittest_and_verify_results
 
 logger = logging.getLogger(__name__)
 
-from .utils import validate_results
 
 @test
 def unittest_test_objects():
@@ -28,8 +27,7 @@ def unittest_test_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -52,8 +50,7 @@ def unittest_mix_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -72,8 +69,7 @@ def unittest_mix_objects_no_results():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -93,8 +89,7 @@ def unittest_strings():
         TestFieldObject(x=1, y=2, foo='bar')
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -112,8 +107,7 @@ def unittest_empty_query():
     ]
     expected_results = values
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -134,8 +128,7 @@ def unittest_int_and_query():
         {'name': 'Mike', 'fo0d': 'bar'},
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -158,8 +151,7 @@ def unittest_mix_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
 @test
@@ -178,10 +170,9 @@ def unittest_mix_objects_no_results():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
-    
-    
+    run_unittest_and_verify_results(query_str, values, expected_results)
+
+
 @test
 def unittest_lists_and_dicts_case_insensitive_regex():
     query_str = 'x = 3 or (name like (?i)mike and ^fo{2})'
@@ -204,10 +195,9 @@ def unittest_lists_and_dicts_case_insensitive_regex():
         dict(x=9, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
-    validate_results(expected_results, results)
-    
-    
+    run_unittest_and_verify_results(query_str, values, expected_results)
+
+
 @test
 def unittest_lists_and_dicts_case_sensitive_regex():
     query_str = 'x = 3 or (name like mike and ^fo{2})'
@@ -228,5 +218,4 @@ def unittest_lists_and_dicts_case_sensitive_regex():
         dict(x=9, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)

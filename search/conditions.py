@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 # Base class
 #################################################
 
-
 class Condition(with_metaclass(ABCMeta, object)):
     '''An ABC for all search conditions'''
 
@@ -80,23 +79,13 @@ class OrStatement(Condition):
 #################################################
 
 class Operator(Condition):
-    EXPRESSION = None
-    OPERATOR = None
     EXPRESSION_NAME = None
+    OPERATOR = None
 
     def __init__(self, lhs, rhs):
         super(Operator, self).__init__()
         self.field = QueryField(lhs, rhs)
 
-    def __str__(self):
-        assert self.__class__.EXPRESSION, \
-            f'{self.__class__.__name__} does not implement EXPRESSION'
-        return f'({self.field.name} {self.__class__.EXPRESSION} ' \
-            f'{self.field.value})'
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}: "{self}"'
-        
     @stacktrace(logger)
     def __call__(self, values):
         return self._get_values(values)
@@ -115,8 +104,8 @@ class Operator(Condition):
             # If val is not a dict, update property_fields
             if not isinstance(val, dict):
                 property_fields = {
-                    k: getattr(val, k) 
-                    for k, v in val.__class__.__dict__.items() 
+                    k: getattr(val, k)
+                    for k, v in val.__class__.__dict__.items()
                     if type(v) is property
                 }
 
@@ -143,14 +132,13 @@ class Operator(Condition):
         return results
 
     def __str__(self):
-        assert self.__class__.EXPRESSION_NAME
-        return '({} {} {})'.format(
-            self.field.name,
-            self.__class__.EXPRESSION_NAME,
-            self.field.value)
+        assert self.__class__.EXPRESSION_NAME, \
+            f'{self.__class__.__name__} does not implement EXPRESSION_NAME'
+        return f'({self.field.name} {self.__class__.EXPRESSION_NAME} ' \
+            f'{self.field.value})'
 
     def __repr__(self):
-        return '{}: "{}"'.format(self.__class__.__name__, str(self))
+        return f'{self.__class__.__name__}: "{self}"'
 
 
 class EqualOperator(Operator):
