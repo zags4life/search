@@ -7,6 +7,9 @@ STACKDEPTH = 0
 
 
 def stacktrace(logger):
+    '''Decorator that will log when the method is first called and when it
+    exits.  The output will be indented based on the depth of the stack.
+    '''
     def decorator(func):
         def print_stack(self, *args, **kwargs):
             global STACKDEPTH
@@ -19,7 +22,7 @@ def stacktrace(logger):
                 return func(self, *args, **kwargs)
             finally:
                 STACKDEPTH -= 1
-                
+
                 logger.debug(
                     f"{' ' * (4 * STACKDEPTH)}<<< {self} "
                     f"({datetime.now() - start_time})"
