@@ -1,5 +1,5 @@
 # fields.py
-
+from contextlib import contextmanager
 from datetime import date, datetime
 import logging
 import re
@@ -24,6 +24,7 @@ DATE_FORMATS = (
 
 
 def Date(date_str):
+    '''Parse date in string format into a datetime object'''
     if not date_str:
         return None
 
@@ -53,34 +54,21 @@ class Field:
         self.name = str(name)
         self.value = value
 
+    @contextmanager
     def convert_type(self, value):
-        '''Call operator - converts the underlying string value to the 
-        appropriate type.
+        '''Context manager that attempts to convert the underlying string value
+        to the same type as value.  If successful, the converted value will be
+        yielded else None is yielded
         
         Parameters:
-        value - the value we need to convert
-        
-        Returns - True is the value was successfully converted, otherwise False
+        value - the value we need to convert to
         '''
 
         try:
             # If the value is a date, convert the string value to a date object.
             # Else, convert the string value to the same type as the value
-            self.value = (Date(self.value) 
+            yield (Date(self.value) 
                 if isinstance(value, (date, datetime)) 
                 else type(value)(str(self.value)))
-            return True
         except Exception:
-            pass
-        return False
-
-    def __enter__(self):
-        '''When entered, self.value will be cached to be restored when exiting 
-        the context manager
-        '''
-        self.__orig_val = self.value
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        '''Restore the cached value'''
-        self.value = self.__orig_val
+            yield None

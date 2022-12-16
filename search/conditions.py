@@ -79,8 +79,11 @@ class OrStatement(Condition):
 #################################################
 
 class Operator(Condition):
-    EXPRESSION_NAME = None
-    OPERATOR = None
+    '''Operator base class that will perform an arithmetic comparision 
+    like '=', '!=', '<', etc
+    '''
+    OPERATOR_NAME = None # Used by __str__
+    OPERATOR = None      # a function defined by child classes
 
     def __init__(self, lhs, rhs):
         super(Operator, self).__init__()
@@ -119,9 +122,8 @@ class Operator(Condition):
                     # Convert the search field to the same type as value,
                     # then apply the operator
                     if re.search(self.field.name, k):
-                        with self.field:
-                            if self.field.convert_type(v) and \
-                                    self.OPERATOR(v, self.field.value):
+                        with self.field.convert_type(v) as field_value:
+                            if self.OPERATOR(v, field_value):
                                 return True
             return False
 
@@ -132,9 +134,9 @@ class Operator(Condition):
         return results
 
     def __str__(self):
-        assert self.__class__.EXPRESSION_NAME, \
-            f'{self.__class__.__name__} does not implement EXPRESSION_NAME'
-        return f'({self.field.name} {self.__class__.EXPRESSION_NAME} ' \
+        assert self.__class__.OPERATOR_NAME, \
+            f'{self.__class__.__name__} does not implement OPERATOR_NAME'
+        return f'({self.field.name} {self.__class__.OPERATOR_NAME} ' \
             f'{self.field.value})'
 
     def __repr__(self):
@@ -142,38 +144,38 @@ class Operator(Condition):
 
 
 class EqualOperator(Operator):
-    EXPRESSION_NAME = '='
+    OPERATOR_NAME = '='
     OPERATOR = operator.eq
 
 
 class NotEqualOperator(Operator):
-    EXPRESSION_NAME = '!='
+    OPERATOR_NAME = '!='
     OPERATOR = operator.ne
 
 
 class LikeOperator(Operator):
-    EXPRESSION_NAME = 'LIKE'
+    OPERATOR_NAME = 'LIKE'
 
     @staticmethod
     def like(lhs, rhs):
-        return re.search(rhs, str(lhs))
+        return rhs and re.search(rhs, str(lhs))
     OPERATOR = like
 
 
 class LessThanOperator(Operator):
-    EXPRESSION_NAME = '<'
+    OPERATOR_NAME = '<'
     OPERATOR = operator.lt
 
 class LessThanOrEqualOperator(Operator):
-    EXPRESSION_NAME = '<='
+    OPERATOR_NAME = '<='
     OPERATOR = operator.le
 
 
 class GreaterThanOperator(Operator):
-    EXPRESSION_NAME = '>'
+    OPERATOR_NAME = '>'
     OPERATOR = operator.gt
 
 
 class GreaterThanOrEqualOperator(Operator):
-    EXPRESSION_NAME = '>='
+    OPERATOR_NAME = '>='
     OPERATOR = operator.ge
