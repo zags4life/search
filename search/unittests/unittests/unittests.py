@@ -1,13 +1,17 @@
 # unit_tests/unit_tests.py
 import logging
 
-from .. import test, TestObject, TestFieldObject
+from .. import (
+    unittest, 
+    TestObject, 
+    TestFieldObject
+)
 from .utils import run_unittest_and_verify_results
 
 logger = logging.getLogger(__name__)
 
 
-@test
+@unittest(logger)
 def unittest_test_objects():
     query_str = 'name like (?i)mike and ^fo{2}'
 
@@ -30,7 +34,7 @@ def unittest_test_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -53,7 +57,7 @@ def unittest_mix_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -72,7 +76,7 @@ def unittest_mix_objects_no_results():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_strings():
     query_str = 'name like (?i)mike and ^fo{1}'
     expected_results = [
@@ -92,7 +96,7 @@ def unittest_strings():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_empty_query():
     '''Verify that empty query string returns the complete set of values'''
     query_str = ''
@@ -110,7 +114,7 @@ def unittest_empty_query():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_int_and_query():
     ''''''
     query_str = 'x = 1 and y <= 5'
@@ -131,7 +135,7 @@ def unittest_int_and_query():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -154,7 +158,7 @@ def unittest_mix_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -173,7 +177,7 @@ def unittest_mix_objects_no_results():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_lists_and_dicts_case_insensitive_regex():
     query_str = 'x = 3 or (name like (?i)mike and ^fo{2})'
 
@@ -198,7 +202,7 @@ def unittest_lists_and_dicts_case_insensitive_regex():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_lists_and_dicts_case_sensitive_regex():
     query_str = 'x = 3 or (name like mike and ^fo{2})'
 

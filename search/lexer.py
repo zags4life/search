@@ -59,41 +59,41 @@ precedence = (
 
 def p_expression_eq(p):
     'expression : NAME EQUALS NAME'
-    p[0] = EqualOperator(p[1], p[3])
+    p[0] = EqualExpression(p[1], p[3])
 
 def p_expression_ne(p):
     'expression : NAME NOT_EQUALS NAME'
-    p[0] = NotEqualOperator(p[1], p[3])
+    p[0] = NotEqualExpression(p[1], p[3])
 
 def p_expression_like(p):
     'expression : NAME LIKE NAME'
-    p[0] = LikeOperator(p[1].strip(), p[3].strip())
+    p[0] = LikeExpression(p[1].strip(), p[3].strip())
 
 def p_expression_lt(p):
     'expression : NAME LT NAME'
-    p[0] = LessThanOperator(p[1].strip(), p[3].strip())
+    p[0] = LessThanExpression(p[1].strip(), p[3].strip())
 
 def p_expression_lte(p):
     'expression : NAME LTE NAME'
-    p[0] = LessThanOrEqualOperator(p[1].strip(), p[3].strip())
+    p[0] = LessThanOrEqualExpression(p[1].strip(), p[3].strip())
 
 def p_expression_gt(p):
     'expression : NAME GT NAME'
-    p[0] = GreaterThanOperator(p[1].strip(), p[3].strip())
+    p[0] = GreaterThanExpression(p[1].strip(), p[3].strip())
 
 def p_expression_gte(p):
     'expression : NAME GTE NAME'
-    p[0] = GreaterThanOrEqualOperator(p[1].strip(), p[3].strip())
+    p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
 
 def p_expression_name(p):
     'expression : NAME'
-    p[0] = LikeOperator(p[1], '.*')
+    p[0] = AnyExpression(p[1])
 
 def p_expression_group(p):
     'expression : LPAREN expression RPAREN'
     p[0] = p[2]
 
-def p_express_statement(p):
+def p_expression_statement(p):
     'expression : statement'
     p[0] = p[1]
 

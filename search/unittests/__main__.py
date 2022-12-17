@@ -20,11 +20,12 @@ def main(tests_to_run):
         path = root.replace(curdir, '').replace(package_path, '')
 
         for file in [f for f in files if f.endswith(".py") and not f.startswith('__')]:
-            file = '{}.{}'.format(path.replace('\\', '.'), file.replace('.py', ''))
-            logger.debug('importing module {} from package {}'.format(file, package))
+            filepath = path.replace('\\', '.')
+            module = f"{filepath}.{file.replace('.py', '')}"
+            logger.debug(f'importing module {package}.{module}')
 
             # import module
-            importlib.import_module(file, package)
+            importlib.import_module(module, package)
 
     # run all tests
     run(tests_to_run)

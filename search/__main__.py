@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from argparse import ArgumentParser
-from datetime import datetime
+from datetime import date, datetime
 import logging
 import sys
 import re
@@ -27,7 +27,7 @@ def execute_query(search_str):
         dict(x=3, y=2, foo='gurp'),
         [1,2,3,4],
         {'name': 'Mike', 'fo0d': 'bar'},
-        {'name': 'Mike', 'fo0d': 'bar', 'date': datetime.today()},
+        {'name': 'Mike', 'fo0d': 'bar', 'date': date.today()},
         {'name': 'mike', 'food': 'bar'},
 
         TestObject(x=3, y=2, foo='travis'),
@@ -47,7 +47,7 @@ def execute_query(search_str):
         print('{} results found - out of {} records'.format(len(results), len(values)))
 
     except InvalidQueryError as e:
-        print('Invalid Query: {}'.format(e))
+        print(f'Invalid Query: {e}')
 
 
 def run_query(query_str, dryrun):

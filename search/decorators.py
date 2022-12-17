@@ -11,15 +11,21 @@ def stacktrace(logger):
     exits.  The output will be indented based on the depth of the stack.
     '''
     def decorator(func):
-        def print_stack(self, *args, **kwargs):
+        def print_stack(self, values, *args, **kwargs):
             global STACKDEPTH
-
+            results = None
             try:
+                if STACKDEPTH == 0:
+                    for result in values:
+                        logger.debug(f"  {result}")
+            
                 start_time = datetime.now()
                 logger.debug(f"{' ' * (4 * STACKDEPTH)}>>> {self}")
 
                 STACKDEPTH += 1
-                return func(self, *args, **kwargs)
+                results = func(self, values, *args, **kwargs)
+                
+                return results
             finally:
                 STACKDEPTH -= 1
 
@@ -27,9 +33,14 @@ def stacktrace(logger):
                     f"{' ' * (4 * STACKDEPTH)}<<< {self} "
                     f"({datetime.now() - start_time})"
                 )
+                
+                for result in results:
+                    logger.debug(f"{' ' * (4 * (STACKDEPTH))}  {result}")
+            return results
 
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            return print_stack(self, *args, **kwargs)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) if not __debug__ \
+                else print_stack(*args, **kwargs)
         return wrapper
     return decorator

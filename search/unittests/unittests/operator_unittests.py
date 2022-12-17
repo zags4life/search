@@ -1,4 +1,5 @@
 # operator_unittests.py
+import logging
 
 from .. import unittest
 from ..testobject import (
@@ -8,8 +9,9 @@ from ..testobject import (
 )
 from .utils import run_unittest_and_verify_results
 
+logger = logging.getLogger(__name__)
 
-@unittest
+@unittest(logger)
 def unittest_equals():
     query_str = 'x=3'
 
@@ -34,7 +36,7 @@ def unittest_equals():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest
+@unittest(logger)
 def unittest_not_equals():
     query_str = 'x != 3'
 
@@ -56,7 +58,7 @@ def unittest_not_equals():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest
+@unittest(logger)
 def unittest_less_than():
     query_str = 'x < 3'
 
@@ -73,7 +75,7 @@ def unittest_less_than():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest
+@unittest(logger)
 def unittest_less_than_or_equal():
     query_str = 'x <= 3'
 
@@ -90,7 +92,7 @@ def unittest_less_than_or_equal():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest
+@unittest(logger)
 def unittest_greater_than():
     query_str = 'x > 3'
 
@@ -107,7 +109,7 @@ def unittest_greater_than():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
 
-@unittest
+@unittest(logger)
 def unittest_greater_than_or_equal():
     query_str = 'x >= 3'
 
@@ -124,7 +126,7 @@ def unittest_greater_than_or_equal():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest
+@unittest(logger)
 def unittest_like():
     query_str = 'name like Mike'
 

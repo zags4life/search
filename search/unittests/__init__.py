@@ -11,33 +11,34 @@ logger = logging.getLogger(__name__)
 REGISTERED_UNITTESTS = []
 
 
-def unittest(func):
-    '''Decorator to register tests
-    '''
-    REGISTERED_UNITTESTS.append(func)
+def unittest(log):
+    '''Decorator to register a test'''
+    def decorator(func):
+        REGISTERED_UNITTESTS.append((func, log))
+        return func
+    return decorator
 test = unittest
 
 
 def run(tests_to_run):
-    result = 0
+    pass_count = 0
     fail_count = 0
     total_count = 0
 
-    for test in REGISTERED_UNITTESTS:
-        if not re.search(tests_to_run, test.__name__):
-            continue
+    filtered_tests = [test for test in REGISTERED_UNITTESTS
+        if re.search(tests_to_run, test[0].__name__)]
+    total_count = len(filtered_tests)
 
-        total_count += 1
+    for test, log in filtered_tests:
         try:
-            logger.info(f'{test.__name__}')
+            log.info(f'{test.__name__}')
             test()
-            logger.info(f'{test.__name__} - PASS\n')
+            log.info(f'{test.__name__} - PASS\n')
+            pass_count += 1
         except AssertionError as e:
-            logger.error(e)
-            result = 1
+            log.error(e)
             fail_count += 1
 
-    pass_count = total_count - fail_count
     padding = len(str(total_count))
 
     logger.info(f' pass   {pass_count:>{padding}}')
@@ -45,4 +46,4 @@ def run(tests_to_run):
     logger.info(f" -------{'-' * padding}")
     logger.info(f' total  {total_count:>{padding}}')
 
-    return result
+    return fail_count
