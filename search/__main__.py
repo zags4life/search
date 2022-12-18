@@ -3,13 +3,16 @@
 from __future__ import print_function
 
 from argparse import ArgumentParser
-from datetime import date, datetime
+from datetime import date
 import logging
 import sys
 import re
 
-from . import search
-from .query import Query, InvalidQueryError
+from . import (
+    InvalidQueryError,
+    Query,
+    search,
+)
 from .unittests.testobject import TestObject
 
 
@@ -17,7 +20,11 @@ if sys.version_info[0] >= 3:
     raw_input = input  # use input() on Python 3
 
 
-def execute_query(search_str):
+def execute_query(search_str, dry_run):
+    # if the query string starts with exit or quit -> stop.
+    if any(search_str.lower().strip().startswith(k) for k in ['quit', 'exit']):
+        return False
+
     values = [
         {'x': 2, 'y': 2, 'foo': 3},
         {'x': 2, 'yy': 20, 'foo': 3},
@@ -37,30 +44,21 @@ def execute_query(search_str):
     ]
 
     try:
-        results = search(search_str, values)
+        results = search(search_str, values, dry_run)
 
-        print('\nResults:')
-
-        for r in results:
-            print(' '*4, r)
-
-        print('{} results found - out of {} records'.format(len(results), len(values)))
-
+        if dry_run:
+            print(results)
+        else:
+            print('\nResults:')
+            for r in results:
+                print(' '*4, r)
+            print('{} results found - out of {} records'.format(len(results), len(values)))
     except InvalidQueryError as e:
         print(f'Invalid Query: {e}')
+    return True
 
 
-def run_query(query_str, dryrun):
-    if query_str.lower().strip() in ['quit', 'exit']:
-        return True
-
-    if dryrun:
-        print(str(Query(query_str)))
-    else:
-        execute_query(query_str)
-
-if __name__ == '__main__':
-
+def main():
     parser = ArgumentParser()
     parser.add_argument('cmds', nargs='*')
     parser.add_argument('-d', '--dryrun', action='store_true')
@@ -69,16 +67,21 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=getattr(logging, args.logging_level.upper()))
 
-    cmds = ' '.join(args.cmds)
 
-    if cmds:
-        for cmd in re.split(',|;', cmds):
-            if run_query(cmd, dryrun=args.dryrun):
-                exit(0)
+    if args.cmds:
+        for cmd in re.split(',|;', ' '.join(args.cmds)):
+            print(f'{cmd.strip()}')
+            if not execute_query(cmd, args.dryrun):
+                return 0
         else:
             print()
 
     while True:
-        if run_query(raw_input('search > '), dryrun=args.dryrun):
+        if not execute_query(raw_input('search > '), args.dryrun):
             break
         print()
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -44,3 +44,24 @@ def stacktrace(logger):
                 else print_stack(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def validate_query(func):
+    def _validate(query_str):
+        stack = []
+        try:
+            for c in query_str:
+                if c == '(':
+                    stack.append(c)
+                elif c == ')':
+                    stack.pop(-1)
+        except IndexError:
+            raise InvalidQueryError('Unbalanced parenthesis')
+
+        if len(stack) != 0:
+            raise InvalidQueryError('Unbalanced parenthesis')
+    
+    def wrapper(query_str, *args, **kwargs):
+        _validate(query_str)
+        return func(query_str, *args, **kwargs)
+    return wrapper

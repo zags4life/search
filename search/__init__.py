@@ -1,5 +1,7 @@
 # __init__.py
-from .query import query, Query, InvalidQueryError
-
-# alias query
-search = query
+from .query import (
+    InvalidQueryError,
+    query,
+    Query,
+    search
+)
