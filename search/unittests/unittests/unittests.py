@@ -78,7 +78,7 @@ def unittest_mix_objects_no_results():
 
 @unittest(logger)
 def unittest_strings():
-    query_str = 'name like (?i)mike and ^fo{1}'
+    query_str = 'name like (?i)mike and ^fo{1}.*'
     expected_results = [
         {'name': 'Mike', 'fo0d': 'bar'},
     ]

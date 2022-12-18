@@ -56,7 +56,7 @@ class Query(object):
         converted_results = []
         for result in results:
             if isinstance(result, HashableWrapperObject):
-                converted_results.append(result.original_object)
+                converted_results.append(result._original_object)
             else:
                 converted_results.append(result)
         return converted_results
@@ -72,10 +72,10 @@ class HashableWrapperObject:
 
         for k, v in value.items():
             setattr(self, k, v)
-        self.original_object = value
+        self._original_object = value
 
     def __str__(self):
-        return str(self.original_object)
+        return str(self._original_object)
 
 
 class InvalidQueryError(Exception):

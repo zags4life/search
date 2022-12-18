@@ -44,7 +44,7 @@ def Date(date_str):
     logger.error("Failed to parse date '{}'".format(date_strs))
 
 
-class Field:
+class Field(object):
     '''Represents a field, containing a name and a value, to be used for
     comparisons.  This class provides helper equality / inequality operator
     to provide a common, unified, interface for comparing unlike objects

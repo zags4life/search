@@ -119,7 +119,9 @@ class Expression(Condition):
 
     def _convert_type_and_compare_value(self, value):
         '''Check the value'''
-        instance_fields = value.__dict__ if not isinstance(value, dict) else value
+        instance_fields = {k:v for k, v in value.__dict__.items() 
+            if not k.startswith('_')} \
+            if not isinstance(value, dict) else value
         property_fields = {}
 
         # If value is not a dict, update property_fields
@@ -139,7 +141,7 @@ class Expression(Condition):
                 # Is the field name match the key.  If True,
                 # Convert the search field to the same type as value,
                 # then apply the operator
-                if re.search(self.field.name, field_name) is not None:
+                if re.search(self.field.name, field_name):
                     with self.field.convert_type(v) as field_value:
                         if self.EXPRESSION(v, field_value):
                             return True
