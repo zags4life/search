@@ -1,10 +1,6 @@
 Search
 ======
 
-## Introduction
-
-The _search_ module enables users to quickly and easily query a list of generic python objects using a human readable grammar.  This is particularly useful when you need to filter frequently or wish to enable callers to filter using custom filers
-
 * [Introduction](#introduction)
 * [Grammar](#grammar)
   * [Arithmetic Expressions](#arithmetic-expressions)
@@ -15,29 +11,38 @@ The _search_ module enables users to quickly and easily query a list of generic 
 * [API](#api)
 * [Examples](#examples)
 
-## Grammar
+## Introduction
+The _search_ module enables users to quickly and easily search a collection of generic python objects using a human readable grammar.  This is particularly useful when you need to filter frequently or wish to enable callers to filter using custom filters.
 
+
+## Grammar
 ### Arithmetic Expressions
-The most fundamental expression consists of a key/value pair separated by an operator.  Any object that contains a field that matches the field name and field value returns `True` using the supplied operator will be returned in the resulting set.
+The most fundamental expression consists of a key / value pair separated by an operator.  Any object that contains a field, or attribute, that matches the field name and field value returns `True` using the supplied operator will be returned in the resulting set.
 
 ```<field_name> <operator> <field_value>```
 
 **Note:** `<field_name>` **can be a regular expression, regardless of the operator.**
 
-The _search_ module enables `=`, `!=`, `‹`, `‹=`, `>`, `>=`, and `like` arithmetic operators.  The `like` operator allows for field values that are regular expressions.
+The _search_ module enables `=`, `!=`, `<`, `<=`, `>`, `>=`, and `like` arithmetic operators.
 
 For example:
 ```
-name = tom
+name = travis
 ```
 
-#### Equals vs Like
+#### '=' vs like
 The equals (`=`) operator tests for equality were as the `like` operator tests for likeness using regular expressions.
+
+#### Type Conversion
+When a query is compiled, both the field name and field value are parsed as strings.  If we were to compare objects values using this parsed field value, queries like `x = 1` will fail because it would result in a `str` to `int` comparison.  To solve this, when an object is found to have an attribute that matches the field name, the field value will be converted to the same type as the objects attribute value.  **Type conversion assumes that a `type` can be instanciated by passing a string to the constructor.  E.g. `int('2')`.**  
+
+Type conversion is temporary and does not affect the original value.  It is also worth noting that field name is _always_ treated as a string and is never altered or modified.
+
 
 ### Logical Statements
 Arithmetic expressions can be combine using logical statements and supports `and`, `or`, and `not` (or `!`) logical operators.
 
-The below are example query strings and illistrate how the string is logically Dissected interrupted by the _search_ module
+The below are example query strings and illistrate how the string is logically interrupted by the _search_ module
 
 ```
 name like Tom and age > 25  ->  [[((?i)name LIKE Tom) AND ((?i)age > 25)]
@@ -61,48 +66,42 @@ For example:
 ```
 
 ### Case sensitivity
-All logical and arithmetic operators are case insensitive.  Field names and value are case sensitive.
+All logical and arithmetic operators are case insensitive (e.g. `AND` vs `and`), where as field names and value are case _sensitive_ (e.g. `name like Tom` vs `Name like Tom`).
 
 ## Supported Types
-The _search_ module automatically converts `dict`, `list`, and custom class types to searchable objects.
+### Custom Classes
+Any class object is searchable.  All "public" attributes and properties will be used for comparison.  Note, any attribute that with starts with `_` or is callback will _not_ be considered in the search collection.
+
+### Builtin Types
+Builtin types `list` and `dict` are also searchable.  Please note that `set` is not searchable.
 
 For `dict`, each key/value pair becomes a searchable item where the search field name equals the key and the search field value becomes the value.
 
 For `list`, the search field name is the list index and the search value is the value at that index.
 
-For custom types, all public attributes become searchable key/value pairs.
-
 ## API
 The _search_ module API `query` is the main entry point for querying.
 
 ```
-def query(query_str, values):
-    '''Queries a list of values given a query string returning the resulting
-    subset of values.
+def search(search_str, values, dry_run=False):
+    '''Searches a collection of python objects based on the search string
 
     Parameters:
-    query_str -a string representing the query
-    values - a list of values to query
+        search_str - the query string using the search grammar
+        values - a collection of objects to search
+        dry_run - a bool indicating whether to compile the query only, but not
+            execute it.  If True, the query will be return in string form.
+            This is helpful to validate the search is being compiled correctly.
 
-    Returns:
-    The resulting subset of items after the original values have been
-    filtered using the query_str, in list form.
+    Returns - a subset, as a list, of objects from value that match the search
     '''
 ```
 
-### Defining Custom Search Fields
-If you recall, all public attributes and properties in a class will automatically be made searchable.  However, in some cases, a developer may wish to control which attributes are searchable.  In this case, they must derive their class from `SearchDataProvider`.
-
-#### SearchDataProvider
-The `SearchDataProvider` is an ABC for defining custom searchable data.  This interface allows objects to control which attributes are searchable and which are not.
-
-`SearchDataProvider` requires child classes to implement the `fields` property, which exposes all searchable fields to the _search_ module as a dictionary of key/value pairs.
-
 ## Examples
 
-### Searching a list of dictionaries
+### Searching a collection of dictionaries
 ```
-from search import query
+from search import search
 
 values = [
     {'x': 1, 'y': 2 },
@@ -110,7 +109,7 @@ values = [
     {'x': 2, 'y': 2 },
 ]
 
-for result in query('y = 2', values):
+for result in search('y = 2', values):
     print (result)
 
 #########
@@ -120,42 +119,72 @@ Output:
 {'x': 2, 'y': 2 }
 ```
 
-### Search a list of classes
+### Searching a collection of lists
 ```
-from search import query
+from search import search
 
-class TestObject(object):
-    def __init__(self, **kwargs):
-        self.__fields = []
-        for k,v in kwargs.items():
-            setattr(self, k, v)
+values = [
+    ['Tom', 'Travis'],
+    [1, 2, 4],
+]
 
-if __name__ == '__main__':
-    values = [
-        TestObject(name=Tom, age=27),
-        TestObject(name=Eric, age=34, city='Chicago'),
-    ]
-
-    results = query('city = Chicago', values)
-    for result in query('y = 2', values):
+for result in search('.* = 2', values):
     print (result)
 
 #########
 Output:
 
-TestObject(name=Eric, age=34, city='Chicago')
+[1, 2, 4]
 ```
 
-### Implementing a SearchDataProvider
+### Search a collection of classes
 ```
-from search import SearchDataProvider
+from search import search
 
-class TestObject(SearchDataProvider):
+class TestObject(object):
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    @property
-    def fields(self):
-        return {k:v for k,v in self.__dict__.items() if not k.startswith('_')}
+values = [
+    TestObject(name='Tom', age=27),
+    TestObject(name='Eric', age=34, city='Chicago'),
+]
+
+results = search('city = Chicago', values)
+for result in results:
+    print (result)
+
+#########
+Output:
+
+TestObject(name='Eric', age=34, city='Chicago')
+```
+
+### Search a mixed collection
+```
+from search import search
+
+class TestObject(object):
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
+values = [
+    TestObject(name='Tom', age=27),
+    {'x': 1, 'y': 2 },
+    {'x': 1, 'y': 3 },
+    {'x': 2, 'y': 2 },
+    TestObject(name='Eric', age=34, city='Chicago'),
+]
+
+results = search('(city = Chicago and age > 30) or x > 1', values)
+for result in results:
+    print (result)
+
+#########
+Output:
+
+TestObject(name=Eric, age=34, city=Chicago)
+{'x': 2, 'y': 2}
 ```
