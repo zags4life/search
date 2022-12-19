@@ -78,7 +78,7 @@ def unittest_mix_objects_no_results():
 
 @unittest(logger)
 def unittest_strings():
-    query_str = 'name like (?i)mike and ^fo{1}.*'
+    query_str = 'name like (?i)mike'
     expected_results = [
         {'name': 'Mike', 'fo0d': 'bar'},
     ]
@@ -214,6 +214,28 @@ def unittest_lists_and_dicts_case_sensitive_regex():
     values = [
         ['x', 1, 2, 3],
         dict(x=3, y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_None_value():
+    query_str = 'x = None'
+
+    expected_results = [
+        dict(x=None, y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x=None, y=2, foo='gurp'),
         dict(x=4, y=2, foo='gurp', name='mIke'),
         dict(x=5, y=2, foo='gurp', name='mike'),
         dict(x=6, y=2, foo='gurp', name='Mike'),

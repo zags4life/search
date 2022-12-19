@@ -91,7 +91,10 @@ def execution_performance_large_test():
     count = 600000/6
 
     total_time = timeit.timeit(
-        """q(values)""",
+        """try:
+    q(values)
+except Exception as e:
+    print(e)""",
         setup="""from search.query import Query; q = Query('foo=bar');  values=[
         {{'x': 1, 'y': 2, 'foo': 3}},
         dict(x=1, y=2, foo='bar'),

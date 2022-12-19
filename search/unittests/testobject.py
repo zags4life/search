@@ -38,7 +38,6 @@ class TestObject(object):
         return f"{self.__class__.__name__}({', '.join(values)})"
     __repr__ = __str__
 
-from copy import deepcopy
 
 class TestPropertyObject(TestObject):
     def __init__(self, **kwargs):

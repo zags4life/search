@@ -22,7 +22,7 @@ def main(tests_to_run):
         for file in [f for f in files if f.endswith(".py") and not f.startswith('__')]:
             filepath = path.replace('\\', '.')
             module = f"{filepath}.{file.replace('.py', '')}"
-            logger.debug(f'importing module {package}.{module}')
+            # logger.debug(f'importing module {package}.{module}')
 
             # import module
             importlib.import_module(module, package)
@@ -41,9 +41,10 @@ if __name__ == '__main__':
 
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
-        format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+        format='%(name)-15s %(message)s',
+        # format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
         filename=args.log_file,
-        filemode='a'
+        filemode='w'
     )
 
     exit(main(args.tests))

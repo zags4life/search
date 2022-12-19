@@ -81,7 +81,7 @@ class OrStatement(Condition):
 #################################################
 
 class Expression(Condition):
-    '''Expression base class that will perform an arithmetic comparision 
+    '''Expression base class that will perform an arithmetic comparision
     like '=', '!=', '<', etc
     '''
     EXPRESSION_NAME = None # Used by __str__
@@ -90,14 +90,14 @@ class Expression(Condition):
     def __init__(self, name, value):
         '''Base class for all expressions.  It is expected that this class is
         subclassed.
-        
+
         Parameters:
         name - the name of the field to find
         value - the value of the field to find
         '''
         super(Expression, self).__init__()
         self.field = Field(name, value)
-        
+
         assert self.__class__.EXPRESSION, \
             f'{self.__class__.__name__} does not implement EXPRESSION'
         assert self.__class__.EXPRESSION_NAME, \
@@ -113,39 +113,9 @@ class Expression(Condition):
         '''
         results = set()
         for value in values:
-            if self._convert_type_and_compare_value(value):
+            if self.field.compare_value(value, self.EXPRESSION):
                 results.add(value)
         return results
-
-    def _convert_type_and_compare_value(self, value):
-        '''Check the value'''
-        instance_fields = {k:v for k, v in value.__dict__.items() 
-            if not k.startswith('_')} \
-            if not isinstance(value, dict) else value
-        property_fields = {}
-
-        # If value is not a dict, update property_fields
-        if not isinstance(value, dict):
-            property_fields = {
-                k: getattr(value, k)
-                for k, v in value.__class__.__dict__.items()
-                if type(v) is property
-            }
-
-        # Iterate through all instance and property fields
-        for fields in [instance_fields, property_fields]:
-            assert isinstance(fields, dict), \
-                f'Unexpected field type: Expected: {type(dict)}, Actual: {type(fields)}'
-
-            for field_name, v in fields.items():
-                # Is the field name match the key.  If True,
-                # Convert the search field to the same type as value,
-                # then apply the operator
-                if re.search(self.field.name, field_name):
-                    with self.field.convert_type(v) as field_value:
-                        if self.EXPRESSION(v, field_value):
-                            return True
-        return False
 
     def __str__(self):
         return f'({self.field.name} {self.__class__.EXPRESSION_NAME} ' \
@@ -156,7 +126,7 @@ class Expression(Condition):
 
 
 class AnyExpression(Expression):
-    '''Any expression allows for finding objects whose fields are a name 
+    '''Any expression allows for finding objects whose fields are a name
     match only.
     '''
     EXPRESSION_NAME = 'ANY'
@@ -173,7 +143,7 @@ class AnyExpression(Expression):
 
 
 class EqualExpression(Expression):
-    '''Equality expression that validates any element whose name is a 
+    '''Equality expression that validates any element whose name is a
     match (regular expression), the elements value equals the field's value, as
     the same type as the element value (which will require type conversion).
     '''
@@ -182,8 +152,8 @@ class EqualExpression(Expression):
 
 
 class GreaterThanExpression(Expression):
-    '''Greater than expression that validates any element whose name is a 
-    match (regular expression), the elements value is greater than the field's 
+    '''Greater than expression that validates any element whose name is a
+    match (regular expression), the elements value is greater than the field's
     value, as the same type as the element value (which will require automatic
     type conversion).
     '''
@@ -193,8 +163,8 @@ class GreaterThanExpression(Expression):
 
 class GreaterThanOrEqualExpression(Expression):
     '''Greater than or equal to expression that validates any element whose name
-    is a match (regular expression), the elements value is greater than or 
-    equal to the field's value, as the same type as the element value (which will 
+    is a match (regular expression), the elements value is greater than or
+    equal to the field's value, as the same type as the element value (which will
     require automatic type).
     '''
     EXPRESSION_NAME = '>='
@@ -202,19 +172,19 @@ class GreaterThanOrEqualExpression(Expression):
 
 
 class LessThanExpression(Expression):
-    '''Greater than expression that validates any element whose name is a 
-    match (regular expression), the elements value is less than the 
-    the field's value, as the same type as the element value (which will 
+    '''Greater than expression that validates any element whose name is a
+    match (regular expression), the elements value is less than the
+    the field's value, as the same type as the element value (which will
     require automatic type).
     '''
     EXPRESSION_NAME = '<'
     EXPRESSION = operator.lt
-    
+
 
 class LessThanOrEqualExpression(Expression):
     '''Less than or equal to expression that validates any element whose name
-    is a match (regular expression), the elements value is less than or 
-    equal to the field's value, as the same type as the element value (which will 
+    is a match (regular expression), the elements value is less than or
+    equal to the field's value, as the same type as the element value (which will
     require automatic type).
     '''
     EXPRESSION_NAME = '<='
@@ -222,7 +192,7 @@ class LessThanOrEqualExpression(Expression):
 
 
 class LikeExpression(Expression):
-    '''String comparison expression, where the field value is treated a 
+    '''String comparison expression, where the field value is treated a
     regular expression.  Note: Expression will always treat the field name as a
     regular expression.
     '''
@@ -230,14 +200,14 @@ class LikeExpression(Expression):
 
     @staticmethod
     def operator_like(name, value):
-        return value is not None and re.search(value, str(name)) is not None
+        return value and re.search(value, str(name)) is not None
     EXPRESSION = operator_like
 
 
 class NotEqualExpression(Expression):
-    '''Inequality expression that validates any element whose name is a 
+    '''Inequality expression that validates any element whose name is a
     match (regular expression), the elements value does not equal the field's
-    value, as the same type as the element value (which will require type 
+    value, as the same type as the element value (which will require type
     conversion).
     '''
     EXPRESSION_NAME = '!='

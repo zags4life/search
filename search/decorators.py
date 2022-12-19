@@ -15,27 +15,29 @@ def stacktrace(logger):
             global STACKDEPTH
             results = None
             try:
-                if STACKDEPTH == 0:
-                    for result in values:
-                        logger.debug(f"  {result}")
-            
                 start_time = datetime.now()
                 logger.debug(f"{' ' * (4 * STACKDEPTH)}>>> {self}")
 
+                for result in values:
+                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}= {result}")
+
                 STACKDEPTH += 1
                 results = func(self, values, *args, **kwargs)
-                
+
                 return results
             finally:
                 STACKDEPTH -= 1
-
                 logger.debug(
                     f"{' ' * (4 * STACKDEPTH)}<<< {self} "
                     f"({datetime.now() - start_time})"
                 )
-                
-                for result in results:
-                    logger.debug(f"{' ' * (4 * (STACKDEPTH))}  {result}")
+
+                if not results:
+                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
+                else:
+                    for result in results:
+                        logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
+
             return results
 
         @wraps(func)
@@ -60,7 +62,7 @@ def validate_query(func):
 
         if len(stack) != 0:
             raise InvalidQueryError('Unbalanced parenthesis')
-    
+
     def wrapper(query_str, *args, **kwargs):
         _validate(query_str)
         return func(query_str, *args, **kwargs)
