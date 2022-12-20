@@ -55,15 +55,6 @@ class Field(object):
             if op_func(matching_value, self.__convert_type(matching_value)):
                 return True
         return False
-        
-    def __is_special_case(self, value):
-        '''Determines if the value is a special case;
-        Special cases:
-          1) the value we are looking for is None
-          2) the value we are looking for is empty string
-        '''
-        return ((value is None and self.value == 'None')
-            or (value == '' and self.value == ''))
 
     def __is_matching_attr_name(self, other):
         '''Determines if 'other' contains an attribute that matches self.name.
