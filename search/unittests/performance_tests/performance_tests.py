@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 from .. import test
 from ...query import Query
 
-@test
+@test(logger)
 def end_to_end_query_performance_test():
     iterations = 20000
 
@@ -26,11 +26,11 @@ def end_to_end_query_performance_test():
         ]""",
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,.2f} ms".format('total time', total_time))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,.2f} ms".format('total time', total_time))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
-@test
+@test(logger)
 def compile_performance_test():
     iterations = 20000
 
@@ -39,11 +39,11 @@ def compile_performance_test():
         setup="from search.query import Query",
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,.2f} ms".format('total time', total_time))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,.2f} ms".format('total time', total_time))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
-@test
+@test(logger)
 def execution_performance_test():
     iterations = 100000
 
@@ -59,11 +59,11 @@ def execution_performance_test():
         ]""",
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,.2f} ms".format('total time', total_time))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,.2f} ms".format('total time', total_time))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
-@test
+@test(logger)
 def execution_performance_medium_test():
     iterations = 1000
     count = 200
@@ -80,18 +80,21 @@ def execution_performance_medium_test():
         ]*{0}""".format(count),
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,}".format('Total items', count*6))
-    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,}".format('Total items', count*6))
+    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
-@test
+@test(logger)
 def execution_performance_large_test():
     iterations = 10
     count = 600000/6
 
     total_time = timeit.timeit(
-        """q(values)""",
+        """try:
+    q(values)
+except Exception as e:
+    print(e)""",
         setup="""from search.query import Query; q = Query('foo=bar');  values=[
         {{'x': 1, 'y': 2, 'foo': 3}},
         dict(x=1, y=2, foo='bar'),
@@ -101,12 +104,12 @@ def execution_performance_large_test():
         ]*{0}""".format(int(count)),
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,}".format('Total items', count))
-    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,}".format('Total items', count))
+    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
-@test
+@test(logger)
 def execution_performance_large_TestObject_test():
     iterations = 10
     count = 600000/6
@@ -124,13 +127,13 @@ def execution_performance_large_TestObject_test():
         setup=setup_str,
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,}".format('Total items', count))
-    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,}".format('Total items', count))
+    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
     
 
-@test
+@test(logger)
 def execution_performance_large_TestFieldObject_test():
     iterations = 10
     count = 600000/6
@@ -148,7 +151,7 @@ def execution_performance_large_TestFieldObject_test():
         setup=setup_str,
         number=iterations) * 1000
 
-    print("{0: >25}: {1:,}".format('Total iterations', iterations))
-    print("{0: >25}: {1:,}".format('Total items', count))
-    print("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    print("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
+    logger.info("{0: >25}: {1:,}".format('Total items', count))
+    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
+    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))

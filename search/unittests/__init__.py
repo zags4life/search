@@ -11,38 +11,49 @@ logger = logging.getLogger(__name__)
 REGISTERED_UNITTESTS = []
 
 
-def unittest(func):
-    '''Decorator to register tests
-    '''
-    REGISTERED_UNITTESTS.append(func)
+def unittest(log):
+    '''Decorator to register a test'''
+    def decorator(func):
+        REGISTERED_UNITTESTS.append((func, log))
+        return func
+    return decorator
 test = unittest
 
 
-def run(tests_to_run):
-    result = 0
-    fail_count = 0
-    total_count = 0
+def run(test_case_filter):
+    '''Run tests based on the test filter, as a string, provided by the caller.
+    
+    Parameters:
+        test_case_filter - a regular expression used to filter tests
+        
+    Returns - an int representing the number of failing test cases.
+    '''
+    filtered_tests = [test for test in REGISTERED_UNITTESTS
+        if re.search(test_case_filter, test[0].__name__)]
+    total_count = len(filtered_tests)
+    failed_tests = []
 
-    for test in REGISTERED_UNITTESTS:
-        if not re.search(tests_to_run, test.__name__):
-            continue
-
-        total_count += 1
+    for test, log in filtered_tests:
         try:
-            logger.info(f'{test.__name__}')
             test()
-            logger.info(f'{test.__name__} - PASS\n')
+            log.info(f'{test.__name__} - pass')
         except AssertionError as e:
-            logger.error(e)
-            result = 1
-            fail_count += 1
+            log.info(f'{test.__name__} - FAIL\n    {e}')
+            failed_tests.append(test.__name__)
 
-    pass_count = total_count - fail_count
+
+    # Print failing test cases, if any
+    for idx, failed_test in enumerate(failed_tests):
+        if idx == 0:
+            logger.info('')
+            logger.info(f'Failed Tests:')
+        logger.info(f'    {idx+1}) {failed_test}')
+
     padding = len(str(total_count))
-
-    logger.info(f' pass   {pass_count:>{padding}}')
-    logger.info(f' fail   {fail_count:>{padding}}')
+    logger.info('')
+    logger.info(f' Pass   {total_count - len(failed_tests):>{padding}}')
+    logger.info(f' Fail   {len(failed_tests):>{padding}}')
     logger.info(f" -------{'-' * padding}")
-    logger.info(f' total  {total_count:>{padding}}')
+    logger.info(f' Total  {total_count:>{padding}}')
 
-    return result
+    return len(failed_tests)

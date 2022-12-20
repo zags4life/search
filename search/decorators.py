@@ -7,26 +7,63 @@ STACKDEPTH = 0
 
 
 def stacktrace(logger):
+    '''Decorator that will log when the method is first called and when it
+    exits.  The output will be indented based on the depth of the stack.
+    '''
     def decorator(func):
-        def print_stack(self, *args, **kwargs):
+        def print_stack(self, values, *args, **kwargs):
             global STACKDEPTH
-
+            results = None
             try:
                 start_time = datetime.now()
                 logger.debug(f"{' ' * (4 * STACKDEPTH)}>>> {self}")
 
+                for result in values:
+                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}= {result}")
+
                 STACKDEPTH += 1
-                return func(self, *args, **kwargs)
+                results = func(self, values, *args, **kwargs)
+
+                return results
             finally:
                 STACKDEPTH -= 1
-                
                 logger.debug(
-                    f"({' ' * (4 * STACKDEPTH)}<<< {self} "
+                    f"{' ' * (4 * STACKDEPTH)}<<< {self} "
                     f"({datetime.now() - start_time})"
                 )
 
+                if not results:
+                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
+                else:
+                    for result in results:
+                        logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
+
+            return results
+
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            return print_stack(self, *args, **kwargs)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs) if not __debug__ \
+                else print_stack(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def validate_query(func):
+    def _validate(query_str):
+        stack = []
+        try:
+            for c in query_str:
+                if c == '(':
+                    stack.append(c)
+                elif c == ')':
+                    stack.pop(-1)
+        except IndexError:
+            raise InvalidQueryError('Unbalanced parenthesis')
+
+        if len(stack) != 0:
+            raise InvalidQueryError('Unbalanced parenthesis')
+
+    def wrapper(query_str, *args, **kwargs):
+        _validate(query_str)
+        return func(query_str, *args, **kwargs)
+    return wrapper

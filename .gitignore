@@ -5,3 +5,5 @@
 __pycache__/
 *.out
 parsetab.py
+build/
+*.egg-info

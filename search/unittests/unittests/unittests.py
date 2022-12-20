@@ -1,48 +1,17 @@
 # unit_tests/unit_tests.py
 import logging
 
-from .. import test, TestObject, TestFieldObject
-from ... import query
+from .. import (
+    unittest, 
+    TestObject, 
+    TestFieldObject
+)
+from .utils import run_unittest_and_verify_results
 
 logger = logging.getLogger(__name__)
 
 
-def log_results(expected, actual):
-    logger.debug('Found results:')
-    for result in actual:
-        logger.debug(f'    {result}')
-
-    logger.debug('Expected results:')
-    for result in expected:
-        logger.debug(f'    {result}')
-
-
-def validate_results(expected, actual):
-    log_results(expected, actual)
-
-    assert len(actual) == len(expected), \
-        f'Incorrect number of results.  ' \
-        f'Expected: {len(expected)}  Actual: {len(actual)}'
-
-    matches = []
-
-    for expected_result in expected:
-        match = True
-        for result in actual:
-            if expected_result == result:
-                break
-        else:
-            match &= False
-
-        matches.append((expected_result, match))
-
-    # Assert all expected results were found in results
-    assert all(m[1] for m in matches), \
-        f'Unexpected search results:' \
-        f"{' '.join([f'{er} - found {found}' for er, found in matches if not found])}"
-
-
-@test
+@unittest(logger)
 def unittest_test_objects():
     query_str = 'name like (?i)mike and ^fo{2}'
 
@@ -62,11 +31,10 @@ def unittest_test_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -86,11 +54,10 @@ def unittest_mix_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -106,13 +73,12 @@ def unittest_mix_objects_no_results():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_strings():
-    query_str = 'name like (?i)mike and ^fo{1}'
+    query_str = 'name like (?i)mike'
     expected_results = [
         {'name': 'Mike', 'fo0d': 'bar'},
     ]
@@ -127,11 +93,10 @@ def unittest_strings():
         TestFieldObject(x=1, y=2, foo='bar')
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_empty_query():
     '''Verify that empty query string returns the complete set of values'''
     query_str = ''
@@ -146,11 +111,10 @@ def unittest_empty_query():
     ]
     expected_results = values
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_int_and_query():
     ''''''
     query_str = 'x = 1 and y <= 5'
@@ -168,11 +132,10 @@ def unittest_int_and_query():
         {'name': 'Mike', 'fo0d': 'bar'},
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -192,11 +155,10 @@ def unittest_mix_objects():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@test
+@unittest(logger)
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -212,11 +174,10 @@ def unittest_mix_objects_no_results():
         TestObject(x=3, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
-    
-    
-@test
+    run_unittest_and_verify_results(query_str, values, expected_results)
+
+
+@unittest(logger)
 def unittest_lists_and_dicts_case_insensitive_regex():
     query_str = 'x = 3 or (name like (?i)mike and ^fo{2})'
 
@@ -238,11 +199,10 @@ def unittest_lists_and_dicts_case_insensitive_regex():
         dict(x=9, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)    
-    validate_results(expected_results, results)
-    
-    
-@test
+    run_unittest_and_verify_results(query_str, values, expected_results)
+
+
+@unittest(logger)
 def unittest_lists_and_dicts_case_sensitive_regex():
     query_str = 'x = 3 or (name like mike and ^fo{2})'
 
@@ -262,5 +222,136 @@ def unittest_lists_and_dicts_case_sensitive_regex():
         dict(x=9, y=2, foo='gurp'),
     ]
 
-    results = query(query_str, values)
-    validate_results(expected_results, results)
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_None_value():
+    query_str = 'x = None'
+
+    expected_results = [
+        dict(x=None, y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x=None, y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_empty_string_single_quotes():
+    query_str = "x = ''"
+
+    expected_results = [
+        dict(x='', y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_empty_string_double_quotes():
+    query_str = 'x = ""'
+
+    expected_results = [
+        dict(x='', y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_single_quotes():
+    query_str = "name = 'mIke'"
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_double_quotes():
+    query_str = 'name = "mIke"'
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_mixed_quotes():
+    query_str = 'name = \'mIke"'
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
