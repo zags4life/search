@@ -17,7 +17,7 @@ tokens = (
 )
 
 # Tokens
-t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,\?]+'
+t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,\?,@,\'"]+'
 t_LT        = r'\s*<\s*'
 t_LTE       = r'\s*<=\s*'
 t_GT        = r'\s*>\s*'
@@ -67,23 +67,23 @@ def p_expression_ne(p):
 
 def p_expression_like(p):
     'expression : NAME LIKE NAME'
-    p[0] = LikeExpression(p[1].strip(), p[3].strip())
+    p[0] = LikeExpression(p[1], p[3])
 
 def p_expression_lt(p):
     'expression : NAME LT NAME'
-    p[0] = LessThanExpression(p[1].strip(), p[3].strip())
+    p[0] = LessThanExpression(p[1], p[3])
 
 def p_expression_lte(p):
     'expression : NAME LTE NAME'
-    p[0] = LessThanOrEqualExpression(p[1].strip(), p[3].strip())
+    p[0] = LessThanOrEqualExpression(p[1], p[3])
 
 def p_expression_gt(p):
     'expression : NAME GT NAME'
-    p[0] = GreaterThanExpression(p[1].strip(), p[3].strip())
+    p[0] = GreaterThanExpression(p[1], p[3])
 
 def p_expression_gte(p):
     'expression : NAME GTE NAME'
-    p[0] = GreaterThanOrEqualExpression(p[1].strip(), p[3].strip())
+    p[0] = GreaterThanOrEqualExpression(p[1], p[3])
 
 def p_expression_name(p):
     'expression : NAME'

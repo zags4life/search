@@ -245,3 +245,113 @@ def unittest_None_value():
     ]
 
     run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_empty_string_single_quotes():
+    query_str = "x = ''"
+
+    expected_results = [
+        dict(x='', y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_empty_string_double_quotes():
+    query_str = 'x = ""'
+
+    expected_results = [
+        dict(x='', y=2, foo='gurp'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_single_quotes():
+    query_str = "name = 'mIke'"
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_double_quotes():
+    query_str = 'name = "mIke"'
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
+    
+    
+@unittest(logger)
+def unittest_quoted_string_mixed_quotes():
+    query_str = 'name = \'mIke"'
+
+    expected_results = [
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+    ]
+
+    values = [
+        ['x', 1, 2, 3],
+        dict(x='', y=2, foo='gurp'),
+        dict(x=4, y=2, foo='gurp', name='mIke'),
+        dict(x=5, y=2, foo='gurp', name='mike'),
+        dict(x=6, y=2, foo='gurp', name='Mike'),
+        dict(x=7, y=2, foo='gurp'),
+        dict(x=8, y=2, foo='gurp'),
+        dict(x=9, y=2, foo='gurp'),
+    ]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)
