@@ -1,6 +1,5 @@
 # operator_unittests.py
-import logging
-
+from . import logger
 from .. import unittest
 from ..testobject import (
     TestObject, 
@@ -9,7 +8,6 @@ from ..testobject import (
 )
 from .utils import run_unittest_and_verify_results
 
-logger = logging.getLogger(__name__)
 
 @unittest(logger)
 def unittest_equals():

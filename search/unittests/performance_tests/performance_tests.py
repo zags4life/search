@@ -1,14 +1,31 @@
-# unittests/performance_tests/performance_tests.py
+# performance_tests.py
 
-from __future__ import print_function
-
-import logging
 import timeit
 
-logger = logging.getLogger(__name__)
-
+from . import logger
 from .. import test
 from ...query import Query
+
+BUILTIN_OBJECT_SETUP = """
+from search.query import Query
+q = Query('fo=bar')
+values=[
+    {{'x': 1, 'y': 2, 'foo': 3}},
+    dict(x=1, y=2, foo='bar'),
+    dict(x='3', y=2, foo='gurp'),
+    dict(x=3, y=2, foo='gurp'),
+    [1,2,3,4],
+    {{'name': 'Mike', 'fo0d': 'bar'}},
+    ]*{0}
+"""
+
+EXCEPTION_HANDLING_STMT = """
+try:
+    q(values)
+except Exception as e:
+    print(e)
+"""
+
 
 @test(logger)
 def end_to_end_query_performance_test():
@@ -27,7 +44,8 @@ def end_to_end_query_performance_test():
         number=iterations) * 1000
 
     logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,.2f} ms".format('total time', total_time))
+    logger.info("{0: >25}: {1:,}".format('Total items', 6))
+    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
     logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
 @test(logger)
@@ -45,113 +63,121 @@ def compile_performance_test():
 
 @test(logger)
 def execution_performance_test():
-    iterations = 100000
+    iterations = 10000
+    count = 6
 
-    total_time = timeit.timeit(
-        """q(values)""",
-        setup="""from search.query import Query; q = Query('foo=bar'); values=[
-        {'x': 1, 'y': 2, 'foo': 3},
-        dict(x=1, y=2, foo='bar'),
-        dict(x='3', y=2, foo='gurp'),
-        dict(x=3, y=2, foo='gurp'),
-        [1,2,3,4],
-        {'name': 'Mike', 'fo0d': 'bar'},
-        ]""",
-        number=iterations) * 1000
-
-    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,.2f} ms".format('total time', total_time))
-    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    _run_perf_test(
+        iterations, 
+        count, 
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        statement=EXCEPTION_HANDLING_STMT
+    )
 
 @test(logger)
 def execution_performance_medium_test():
-    iterations = 1000
-    count = 200
+    iterations = 100
+    count = 6000
 
-    total_time = timeit.timeit(
-        """q(values)""",
-        setup="""from search.query import Query; q = Query('foo=bar');  values=[
-        {{'x': 1, 'y': 2, 'foo': 3}},
-        dict(x=1, y=2, foo='bar'),
-        dict(x='3', y=2, foo='gurp'),
-        dict(x=3, y=2, foo='gurp'),
-        [1,2,3,4],
-        {{'name': 'Mike', 'fo0d': 'bar'}},
-        ]*{0}""".format(count),
-        number=iterations) * 1000
-
-    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,}".format('Total items', count*6))
-    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    _run_perf_test(
+        iterations, 
+        count, 
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        statement=EXCEPTION_HANDLING_STMT
+    )
 
 @test(logger)
 def execution_performance_large_test():
     iterations = 10
-    count = 600000/6
+    count = 600000
 
-    total_time = timeit.timeit(
-        """try:
-    q(values)
-except Exception as e:
-    print(e)""",
-        setup="""from search.query import Query; q = Query('foo=bar');  values=[
-        {{'x': 1, 'y': 2, 'foo': 3}},
-        dict(x=1, y=2, foo='bar'),
-        dict(x='3', y=2, foo='gurp'),
-        dict(x=3, y=2, foo='gurp'),
-        {{'name': 'Mike', 'fo0d': 'bar'}},
-        ]*{0}""".format(int(count)),
-        number=iterations) * 1000
+    _run_perf_test(
+        iterations, 
+        count, 
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        statement=EXCEPTION_HANDLING_STMT
+    )
 
-    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,}".format('Total items', count))
-    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
 
 @test(logger)
 def execution_performance_large_TestObject_test():
     iterations = 10
-    count = 600000/6
+    count = 600000
 
-    setup_str = """from search.query import Query; from search.unittests.testobject import TestObject; q = Query('foo=bar'); values=[
-            TestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
-            TestObject(**dict(x=1, y=2, foo='bar')),
-            TestObject(**dict(x='3', y=2, foo='gurp')),
-            TestObject(**dict(x=3, y=2, foo='gurp')),
-            TestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
-        ]*{0}""".format(int(count))
+    setup_str = """
+from search.query import Query
+from search.unittests.testobject import TestObject
+q = Query('fo=bar')
+values=[
+    TestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+    TestObject(**dict(x=1, y=2, foo='bar')),
+    TestObject(**dict(x='3', y=2, foo='gurp')),
+    TestObject(**dict(x=3, y=2, foo='gurp')),
+    TestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+    TestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
+]*{0}
+""".format(int(count/6)) # There are already 6 items
 
-    total_time = timeit.timeit(
-        stmt="q(values)",
-        setup=setup_str,
-        number=iterations) * 1000
+    statement = """
+try:
+    q(values)
+except Exception as e:
+    print(e)
+"""
+    _run_perf_test(iterations, count, setup_str, statement)
 
-    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,}".format('Total items', count))
-    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
-    
 
 @test(logger)
 def execution_performance_large_TestFieldObject_test():
     iterations = 10
-    count = 600000/6
+    count = 600000
 
-    setup_str = """from search.query import Query; from search.unittests.testobject import TestFieldObject; q = Query('foo=bar'); values=[
-            TestFieldObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
-            TestFieldObject(**dict(x=1, y=2, foo='bar')),
-            TestFieldObject(**dict(x='3', y=2, foo='gurp')),
-            TestFieldObject(**dict(x=3, y=2, foo='gurp')),
-            TestFieldObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
-        ]*{0}""".format(int(count))
+    setup_str = """
+from search.query import Query
+from search.unittests.testobject import TestFieldObject
+q = Query('fo=bar')
+values=[
+    TestFieldObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+    TestFieldObject(**dict(x=1, y=2, foo='bar')),
+    TestFieldObject(**dict(x='3', y=2, foo='gurp')),
+    TestFieldObject(**dict(x=3, y=2, foo='gurp')),
+    TestFieldObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+    TestFieldObject(**{{'name': 'Mike', 'foo': 'bar'}}),
+]*{0}
+""".format(int(count/6)) # There are already 6 items
 
+    statement = """
+try:
+    q(values)
+except Exception as e:
+    print(e)
+"""
+
+    _run_perf_test(iterations, count, setup_str, statement)
+
+
+def _run_perf_test(iterations, count, setup, statement) -> None:
+    '''Run a performance test
+
+    Parameters:
+    iterations - an int representing the number of iterations to run
+    count - The number of items in the list
+    setup - The setup statement, used to setup to test
+    statement - The statement to execute the test
+    '''
+    logger.info(f"{'Total iterations':>25}: {iterations:>10,}")
+    logger.info(f"{'Total items':>25}: {count:>10,}")
+    
     total_time = timeit.timeit(
-        stmt="q(values)",
-        setup=setup_str,
-        number=iterations) * 1000
+        stmt=statement,
+        setup=setup,
+        number=iterations)
 
-    logger.info("{0: >25}: {1:,}".format('Total iterations', iterations))
-    logger.info("{0: >25}: {1:,}".format('Total items', count))
-    logger.info("{0: >25}: {1:,.2f} secs".format('total time', total_time/1000))
-    logger.info("{0: >25}: {1:,.4f} ms".format('time per iteration', total_time/iterations))
+    # logger.info(f"{'total time': >25}: {total_time:,.2f} secs")
+    avg_time = (total_time * 1000) / iterations
+    suffix = 'ms'
+    
+    if avg_time > 1000:
+        avg_time /= 1000
+        suffix = 'secs'
+    
+    logger.info(f"{'Avg time': >25}: {avg_time:>10,.4f} {suffix}")

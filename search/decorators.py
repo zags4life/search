@@ -42,9 +42,8 @@ def stacktrace(logger):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            return func(*args, **kwargs) if not __debug__ \
-                else print_stack(*args, **kwargs)
-        return wrapper
+            return print_stack(*args, **kwargs)
+        return wrapper if __debug__ else func
     return decorator
 
 
