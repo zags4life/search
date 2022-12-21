@@ -3,8 +3,7 @@ from datetime import date, datetime
 import logging
 import re
 
-import inspect
-
+from .parsers import register_parser, PARSERS
 
 logger = logging.getLogger(__name__)
 
@@ -102,11 +101,10 @@ class Field(object):
         '''
 
         try:
-            # If the value is a date, convert the string value to a date object.
-            # Else, convert the string value to the same type as the value
-            return (Date(self.value)
-                if isinstance(value, (date, datetime))
-                else type(value)(str(self.value)))
+            if type(value) in PARSERS:
+                return PARSERS[type(value)](self.value)
+            else:
+                return type(value)(self.value)
         except Exception:
             return None
 
@@ -120,41 +118,3 @@ class Field(object):
         value = value.replace("'", '')
         value = value.strip()
         return value
-
-
-DATE_FORMATS = (
-    '%m-%d-%Y',
-    '%m-%d-%y',
-    '%m/%d/%Y',
-    '%m/%d/%y',
-    '%m%d%Y',
-    '%m%d%y',
-    '%m/%d',
-    '%m-%d',
-    '%m%d',
-    '%Y%m%d',
-    '%Y-%m-%d',
-    '%Y/%m/%d',
-    '%y%m%d',
-)
-
-
-def Date(date_str):
-    '''Parse date in string format into a datetime object'''
-    if not date_str:
-        return None
-
-    for format in DATE_FORMATS:
-        try:
-            formatted = datetime.strptime(date_str, format)
-
-            if formatted.year == 1900:
-                formatted = datetime(
-                    year=datetime.now().year,
-                    month=formatted.month,
-                    day=formatted.day)
-            return formatted.date()
-        except ValueError:
-            pass
-
-    logger.error("Failed to parse date '{}'".format(date_strs))
