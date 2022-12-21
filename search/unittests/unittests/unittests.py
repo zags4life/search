@@ -1,14 +1,12 @@
-# unit_tests/unit_tests.py
-import logging
+# unittests.py
 
+from . import logger
 from .. import (
     unittest, 
     TestObject, 
     TestFieldObject
 )
 from .utils import run_unittest_and_verify_results
-
-logger = logging.getLogger(__name__)
 
 
 @unittest(logger)

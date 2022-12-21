@@ -1,1 +1,4 @@
-# unit_tests/__init__.py
+# __init__.py
+import logging
+
+logger = logging.getLogger(__name__)
