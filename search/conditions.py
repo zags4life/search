@@ -22,6 +22,10 @@ class Condition(with_metaclass(ABCMeta, object)):
     @abstractmethod
     def __call__(self, values):
         pass
+        
+    @abstractmethod
+    def __str__(self):
+        pass
 
 
 #################################################
@@ -40,40 +44,48 @@ class NotStatement(Condition):
 
     @stacktrace(logger)
     def __call__(self, values):
+        if not isinstance(values, set):
+            values = set(values)
+
         return values - (values & self.condition(values))
 
     def __str__(self):
         return f'[NOT {self.condition}]'
 
 
-class AndStatement(Condition):
-    '''Logical AND statement.  This class will AND two sets (conditions) together'''
+class BooleanStatement(Condition):
+    '''A boolean statement, base class, designed to be subclassed.  
+    A BooleanStatement takes two Condition's and performs a boolean operation
+    on the two resulting sets.
+    '''
     def __init__(self, c1, c2):
-        super(AndStatement, self).__init__()
+        super(BooleanStatement, self).__init__()
+        
+        assert isinstance(c1, Condition) and isinstance(c2, Condition)
+        
         self.condition1 = c1
         self.condition2 = c2
+
+    def __str__(self):
+        return f"[{self.condition1} " \
+            f"{self.__class__.__name__.replace('Statement', '').upper()} " \
+            f"{self.condition2}]"
+
+
+class AndStatement(BooleanStatement):
+    '''Logical AND statement.  This class will AND two sets (conditions) together'''
 
     @stacktrace(logger)
     def __call__(self, values):
         return self.condition1(values) & self.condition2(values)
 
-    def __str__(self):
-        return f"[{self.condition1} AND {self.condition2}]"
 
-
-class OrStatement(Condition):
+class OrStatement(BooleanStatement):
     '''Logical OR statement.  This class will OR two sets (conditions) together'''
-    def __init__(self, c1, c2):
-        super(OrStatement, self).__init__()
-        self.condition1 = c1
-        self.condition2 = c2
 
     @stacktrace(logger)
     def __call__(self, values):
         return self.condition1(values) | self.condition2(values)
-
-    def __str__(self):
-        return f"[{self.condition1} OR {self.condition2}]"
 
 
 #################################################

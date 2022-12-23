@@ -1,5 +1,9 @@
 # query.py
 
+if __debug__:
+    import logging
+    logger = logging.getLogger(__name__)
+
 from .decorators import validate_query
 from .lexer import compile
 
@@ -14,6 +18,8 @@ class Query(object):
     '''
     def __init__(self, query_str):
         query_str = query_str.strip()
+        if __debug__:
+            self.query_str = query_str
 
         self.__condition = None
 
@@ -41,6 +47,10 @@ class Query(object):
 
         Returns - a collection of elements that match the search criteria
         '''
+        
+        if __debug__:
+            logger.info(f'Query: {self.query_str}')
+        
         if not self.__condition:
             return values
 

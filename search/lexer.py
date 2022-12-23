@@ -2,6 +2,7 @@ import logging
 import re
 
 from .conditions import *
+from .ply import lex, yacc
 
 logger = logging.getLogger(__name__)
 
@@ -11,10 +12,9 @@ tokens = (
     'NOT_EQUALS',
     'LIKE', 'LT', 'GT', 'LTE', 'GTE',
     'AND', 'OR',
-    'NOT',
-    'LPAREN','RPAREN',
-
 )
+
+literals = ['!', '(', ')']
 
 # Tokens
 t_NAME      = r'(\(\?[a-z]\)\s*)?[a-zA-Z0-9_\\.*\-\+\^\$/\|\[\]\{\}\,\?,@,\'"]+'
@@ -24,12 +24,9 @@ t_GT        = r'\s*>\s*'
 t_GTE       = r'\s*>=\s*'
 t_EQUALS    = r'\s*=\s*'
 t_NOT_EQUALS = r'\s*!=\s*'
-t_AND       = r'(?i)\s+and\s+'
-t_OR        = r'(?i)\s+or\s+'
-t_LIKE      = r'(?i)\s+like\s+'
-t_NOT       = r'(?i)(!|\s*not\s+)'
-t_LPAREN    = r'\('
-t_RPAREN    = r'\)'
+t_AND       = r'((?i)\s+and\s+)|\s*&&\s*'
+t_OR        = r'((?i)\s+or\s+)|\s*\|\|\s*'
+t_LIKE      = r'(?i)\s+like\s+|\s*~\s*'
 
 has_error = False
 
@@ -45,16 +42,13 @@ def t_error(t):
     global has_error
     has_error = True
 
-# Build the lexer
-from .ply import lex, yacc
-
 # Precedence rules for the arithmetic operators
 precedence = (
     ('left', 'LT', 'GT', 'LTE', 'GTE'),
     ('left', 'EQUALS', 'LIKE', 'NOT_EQUALS'),
     ('left', 'AND', 'OR'),
-    ('left', 'LPAREN', 'RPAREN'),
-    ('left', 'NOT'),
+    ('left', '(', ')'),
+    ('right', 'NOT'),
 )
 
 def p_expression_eq(p):
@@ -90,7 +84,7 @@ def p_expression_name(p):
     p[0] = AnyExpression(p[1])
 
 def p_expression_group(p):
-    'expression : LPAREN expression RPAREN'
+    "expression : '(' expression ')'"
     p[0] = p[2]
 
 def p_expression_statement(p):
@@ -106,11 +100,11 @@ def p_statement_or(p):
     p[0] = OrStatement(p[1], p[3])
 
 def p_statement_not(p):
-    'statement : NOT expression'
+    "statement : '!' expression %prec NOT"
     p[0] = NotStatement(p[2])
 
 def p_statement_group(p):
-    'statement : LPAREN statement RPAREN'
+    "statement : '(' statement ')'"
     p[0] = p[2]
 
 def p_error(p):

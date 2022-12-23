@@ -18,8 +18,8 @@ def stacktrace(logger):
                 start_time = datetime.now()
                 logger.debug(f"{' ' * (4 * STACKDEPTH)}>>> {self}")
 
-                for result in values:
-                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}= {result}")
+                # for result in values:
+                    # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}- {result}")
 
                 STACKDEPTH += 1
                 results = func(self, values, *args, **kwargs)
@@ -32,11 +32,11 @@ def stacktrace(logger):
                     f"({datetime.now() - start_time})"
                 )
 
-                if not results:
-                    logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
-                else:
-                    for result in results:
-                        logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
+                # if not results:
+                    # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
+                # else:
+                    # for result in results:
+                        # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
 
             return results
 
