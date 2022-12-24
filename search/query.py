@@ -47,7 +47,7 @@ class Query(object):
 
         Returns - a collection of elements that match the search criteria
         '''
-        
+
         if not self.__condition:
             return values
 

@@ -2,8 +2,8 @@
 
 from . import logger
 from .. import (
-    unittest, 
-    TestObject, 
+    unittest,
+    TestObject,
     NestedTestObject
 )
 from .utils import run_unittest_and_verify_results
@@ -18,9 +18,9 @@ def nested_object_unittest():
         {'foo.bar': 10},
         {'foo.bar.gurp': 10},
     ]
-    
+
     expected_values = values[:1] + values[3:]
-    
+
     run_unittest_and_verify_results(query_str, values, expected_values)
 
 
@@ -34,7 +34,7 @@ def nested_object_wildcard_name_unittest():
         {'foo.bar': 10},
         {'foo.foo.gurp': 10},
     ]
-    
+
     expected_values = values[:1] + values[-1:]
-    
+
     run_unittest_and_verify_results(query_str, values, expected_values)

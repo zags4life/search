@@ -30,6 +30,11 @@ class TestObject(object):
                 match &= value == other_value
         return match
 
+    @classmethod
+    def create_instance(cls, values):
+        assert isinstance(values, dict)
+        return cls(**values)
+
     def __str__(self):
         '''Returns a string representation of the object'''
         values = [f'{k}={v}' for k,v in self.__dict__.items()
@@ -39,15 +44,27 @@ class TestObject(object):
     __repr__ = __str__
 
 
-class TestPropertyObject(TestObject):
+class NestedTestObject(TestObject):
     def __init__(self, **kwargs):
-        def make_prop(value):
-            def getter(self):
-                return value
-            return property(getter)
+        for k, v in kwargs.items():
+            if '.' in k:
+                parts = k.split('.')
+                assert len(parts) > 1
+                attr_name = parts[0]
+                attr_value = NestedTestObject(**{'.'.join(parts[1:]): v})
+            else:
+                attr_name, attr_value = k, v
+            setattr(self, attr_name, attr_value)
 
-        for k,v in kwargs.items():
-            setattr(self.__class__, k, make_prop(v))
+
+class PropertyTestObject(TestObject):
+    def __init__(self, **kwargs):
+        for prop_name, prop_value in kwargs.items():
+            setattr(
+                self.__class__,
+                prop_name,
+                self.__make_prop(prop_value)
+            )
 
     def __str__(self):
         values = []
@@ -57,7 +74,10 @@ class TestPropertyObject(TestObject):
         for k, v in self.__class__.__dict__.items():
             if type(v) is property:
                 values.append(f'{k}={getattr(self, k)}')
-
         return f"{self.__class__.__name__}({', '.join(values)})"
 
-TestFieldObject = TestPropertyObject
+    @staticmethod
+    def __make_prop(value):
+        def getter(self):
+            return value
+        return property(getter)

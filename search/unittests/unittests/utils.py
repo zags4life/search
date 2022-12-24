@@ -1,10 +1,12 @@
 # utils.py
 import logging
 
-from ... import query
+from ... import search
 from .. import TestObject
 
+
 logger = logging.getLogger(__name__)
+
 
 def log_results(expected, actual):
     logger.debug('Found results:')
@@ -62,5 +64,5 @@ def run_unittest_and_verify_results(query_str, values, expected_results):
     expected_results - a collection of expected values to validate against the
         results returned by *query*
     '''
-    results = query(query_str, values)
+    results = search(query_str, values)
     validate_results(expected_results, results)
