@@ -48,9 +48,6 @@ class Query(object):
         Returns - a collection of elements that match the search criteria
         '''
         
-        if __debug__:
-            logger.info(f'Query: {self.query_str}')
-        
         if not self.__condition:
             return values
 
