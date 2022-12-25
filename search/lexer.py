@@ -1,8 +1,8 @@
 import logging
+from ply import lex, yacc
 import re
 
 from .conditions import *
-from .ply import lex, yacc
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ t_AND       = r'((?i)\s+and\s+)|\s*&&\s*'
 t_OR        = r'((?i)\s+or\s+)|\s*\|\|\s*'
 t_LIKE      = r'(?i)\s+like\s+|\s*~\s*'
 
+
 has_error = False
 
 def t_newline(t):
@@ -41,6 +42,7 @@ def t_error(t):
 
     global has_error
     has_error = True
+
 
 # Precedence rules for the arithmetic operators
 precedence = (

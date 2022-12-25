@@ -59,7 +59,7 @@ class Query(object):
                 converted_values.append(value)
         values = converted_values
 
-        results = self.__condition(values)
+        results = self.__condition(set(values))
         converted_results = []
         for result in results:
             if isinstance(result, HashableWrapperObject):
