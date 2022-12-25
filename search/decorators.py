@@ -5,6 +5,12 @@ from functools import wraps
 
 STACKDEPTH = 0
 
+PRINT_STACK_VALUES = False
+
+def show_stack_values(enable):
+    global PRINT_STACK_VALUES
+    PRINT_STACK_VALUES = enable
+
 
 def stacktrace(logger):
     '''Decorator that will log when the method is first called and when it
@@ -13,17 +19,19 @@ def stacktrace(logger):
     def decorator(func):
         def print_stack(self, values, *args, **kwargs):
             global STACKDEPTH
+            global PRINT_STACK_VALUES
+            
             results = None
             try:
                 start_time = datetime.now()
                 logger.debug(f"{' ' * (4 * STACKDEPTH)}>>> {self}")
 
-                # for result in values:
-                    # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}- {result}")
+                if PRINT_STACK_VALUES:
+                    for result in values:
+                        logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}- {result}")
 
                 STACKDEPTH += 1
                 results = func(self, values, *args, **kwargs)
-
                 return results
             finally:
                 STACKDEPTH -= 1
@@ -32,12 +40,12 @@ def stacktrace(logger):
                     f"({datetime.now() - start_time})"
                 )
 
-                # if not results:
-                    # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
-                # else:
-                    # for result in results:
-                        # logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
-
+                if PRINT_STACK_VALUES:
+                    if not results:
+                        logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}* No Results *")
+                    else:
+                        for result in results:
+                            logger.debug(f"{' ' * (4 * (STACKDEPTH+1))}+ {result}")
             return results
 
         @wraps(func)

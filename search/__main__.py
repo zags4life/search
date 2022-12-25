@@ -14,6 +14,7 @@ from . import (
     search,
 )
 from .unittests.testobject import TestObject
+from .decorators import show_stack_values
 
 
 if sys.version_info[0] >= 3:
@@ -113,9 +114,13 @@ def main():
     parser.add_argument('cmds', nargs='*')
     parser.add_argument('-d', '--dryrun', action='store_true')
     parser.add_argument('-l', '--logging-level', default='info')
+    parser.add_argument('--print-values', action='store_true', 
+        help="Print stack values.  This only works when --logging-level debug")
     args = parser.parse_args()
 
     logging.basicConfig(format='%(message)s')
+
+    show_stack_values(args.print_values)
 
     executor = TestExecutor(
         initial_cmds=' '.join(args.cmds),
