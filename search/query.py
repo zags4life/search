@@ -1,6 +1,11 @@
 # query.py
 
+if __debug__:
+    import logging
+    logger = logging.getLogger(__name__)
+
 from .decorators import validate_query
+from .exceptions import InvalidQueryError
 from .lexer import compile
 
 
@@ -14,6 +19,8 @@ class Query(object):
     '''
     def __init__(self, query_str):
         query_str = query_str.strip()
+        if __debug__:
+            self.query_str = query_str
 
         self.__condition = None
 
@@ -41,6 +48,7 @@ class Query(object):
 
         Returns - a collection of elements that match the search criteria
         '''
+
         if not self.__condition:
             return values
 
@@ -52,7 +60,7 @@ class Query(object):
                 converted_values.append(value)
         values = converted_values
 
-        results = self.__condition(values)
+        results = self.__condition(set(values))
         converted_results = []
         for result in results:
             if isinstance(result, HashableWrapperObject):
@@ -76,10 +84,6 @@ class HashableWrapperObject:
 
     def __str__(self):
         return str(self._original_object)
-
-
-class InvalidQueryError(Exception):
-    pass
 
 
 @validate_query

@@ -4,11 +4,18 @@ from datetime import datetime
 import logging
 import re
 
-from .testobject import TestObject, TestFieldObject
+from .testobject import (
+    TestObject,
+    PropertyTestObject,
+    NestedTestObject
+)
 from ..query import Query, InvalidQueryError
 
+
 logger = logging.getLogger(__name__)
+
 REGISTERED_UNITTESTS = []
+
 
 def unittest(log=logger):
     '''Decorator to register a test'''
@@ -34,7 +41,6 @@ def run(test_case_filter):
 
     for test, log in filtered_tests:
         try:
-            log.info(f'{test.__name__}')
             test()
             log.info(f'{test.__name__} - pass')
         except AssertionError as e:

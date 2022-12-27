@@ -127,21 +127,21 @@ except Exception as e:
 
 
 @test(logger)
-def execution_performance_large_TestFieldObject_test():
+def execution_performance_large_PropertyTestObject_test():
     iterations = 10
     count = 600000
 
     setup_str = """
 from search.query import Query
-from search.unittests.testobject import TestFieldObject
+from search.unittests.testobject import PropertyTestObject
 q = Query('fo=bar')
 values=[
-    TestFieldObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
-    TestFieldObject(**dict(x=1, y=2, foo='bar')),
-    TestFieldObject(**dict(x='3', y=2, foo='gurp')),
-    TestFieldObject(**dict(x=3, y=2, foo='gurp')),
-    TestFieldObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
-    TestFieldObject(**{{'name': 'Mike', 'foo': 'bar'}}),
+    PropertyTestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+    PropertyTestObject(**dict(x=1, y=2, foo='bar')),
+    PropertyTestObject(**dict(x='3', y=2, foo='gurp')),
+    PropertyTestObject(**dict(x=3, y=2, foo='gurp')),
+    PropertyTestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+    PropertyTestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
 ]*{0}
 """.format(int(count/6)) # There are already 6 items
 

@@ -4,7 +4,7 @@ from . import logger
 from .. import (
     unittest, 
     TestObject, 
-    TestFieldObject
+    PropertyTestObject
 )
 from .utils import run_unittest_and_verify_results
 
@@ -88,7 +88,7 @@ def unittest_strings():
         dict(x=3, y=2, foo='gurp'),
         [1,2,3,4],
         {'name': 'Mike', 'fo0d': 'bar'},
-        TestFieldObject(x=1, y=2, foo='bar')
+        PropertyTestObject(x=1, y=2, foo='bar')
     ]
 
     run_unittest_and_verify_results(query_str, values, expected_results)
