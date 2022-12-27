@@ -71,9 +71,10 @@ class TestExecutor:
         # Run the initial commands first.
         if self.initial_cmds:
             for cmd in re.split(',|;', self.initial_cmds):
-                if cmd and not self.execute(cmd):
-                    return 0
-                logging.info('')
+                if cmd:
+                    if not self.execute(cmd):
+                        return 0
+                    logging.info('')
 
         # Execute the user input
         while self.execute(input('search > ')):
@@ -101,7 +102,7 @@ class TestExecutor:
             return False
 
         if cmd.startswith('@log'):
-            return self.update_logging_level(cmd)
+            return self.__update_logging_level(cmd)
 
         if cmd.startswith('@dryrun'):
             self.dry_run = not self.dry_run
@@ -110,33 +111,6 @@ class TestExecutor:
         
         # If we get here, the command is unknown / not supported
         logging.error(f"Unsupported command '{cmd}'")
-        return True
-
-    @staticmethod
-    def update_logging_level(cmd):
-        assert cmd.startswith('@log')
-
-        cmds = cmd.split(' ')
-        if len(cmds) < 2:
-            logging.error('Invalid cmd - @log requires additional parameter.'
-                'E.g. "@log debug"')
-
-        else:
-            level_str = cmds[1].lower()
-
-            if level_str == 'all':
-                # enable printing values for each stacktrace
-                show_stack_values(enable=True)
-
-                # reset logging_level to debug
-                level_str = 'debug'
-
-            level = getattr(logging, level_str.upper())
-
-            logger = logging.getLogger()
-            logger.setLevel(level)
-
-            logger.info(f'Set {logger.name} logger to {level_str}')
         return True
 
     def execute_search(self, search_str):
@@ -175,6 +149,33 @@ class TestExecutor:
         '''
         return re.search(r'(?i)^(@|quit|exit)', user_input_str.strip()) is not None
 
+    @staticmethod
+    def __update_logging_level(cmd):
+        assert cmd.startswith('@log')
+
+        cmds = cmd.split(' ')
+        if len(cmds) < 2:
+            logging.error('Invalid cmd - @log requires additional parameter.'
+                'E.g. "@log debug"')
+
+        else:
+            level_str = cmds[1].lower()
+
+            if level_str == 'all':
+                # enable printing values for each stacktrace
+                show_stack_values(enable=True)
+
+                # reset logging_level to debug
+                level_str = 'debug'
+
+            level = getattr(logging, level_str.upper())
+
+            logger = logging.getLogger()
+            logger.setLevel(level)
+
+            logger.info(f'Set {logger.name} logger to {level_str}')
+        return True
+
 
 def main():
     parser = ArgumentParser()
@@ -182,8 +183,6 @@ def main():
     parser.add_argument('-d', '--dryrun', action='store_true')
     parser.add_argument('-l', '--logging-level', default='info',
         choices=['error', 'warn', 'warning', 'info', 'debug', 'all'])
-    # parser.add_argument('--print-values', action='store_true',
-        # help="Print stack values.  This only works when --logging-level debug")
     args = parser.parse_args()
 
     logging.basicConfig(format='%(message)s')
