@@ -5,6 +5,7 @@ if __debug__:
     logger = logging.getLogger(__name__)
 
 from .decorators import validate_query
+from .exceptions import InvalidQueryError
 from .lexer import compile
 
 
@@ -83,10 +84,6 @@ class HashableWrapperObject:
 
     def __str__(self):
         return str(self._original_object)
-
-
-class InvalidQueryError(Exception):
-    pass
 
 
 @validate_query

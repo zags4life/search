@@ -3,6 +3,7 @@ from datetime import date, datetime
 import logging
 import re
 
+from .exceptions import InvalidQueryError
 from .parsers import register_parser, PARSERS
 
 logger = logging.getLogger(__name__)
@@ -20,15 +21,23 @@ class Field(object):
 
         self.original_name = name
         self.original_value = self.value
-
-        if '.' in self.name:
-            parts = self.name.split('.')
+        
+        if '\.' in self.name or ('\.' not in self.name and '.' in self.name):
+            wildcard = r'\.' if '\.' in self.name else '.'
+            parts = self.name.split(wildcard)
             self.name = parts[0]
-            self.value = type(self)('.'.join(parts[1:]), self.value)
+            self.value = type(self)('\.'.join(parts[1:]), self.value)
 
-        # Precompile the regular expression for performance improvement.
-        self.__name_attr_regex = re.compile(self.name)
-        self.__org_name_attr_regex = re.compile(self.original_name)
+        self.__name_attr_regex = self.compile_regex(self.name)
+        self.__org_name_attr_regex = self.compile_regex(self.original_name)
+
+    @staticmethod
+    def compile_regex(regex_str):
+        try:
+            # Precompile the regular expression for performance improvement.
+            return re.compile(regex_str)
+        except re.error as e:
+            raise InvalidQueryError(f"Invalid regular expression: '{regex_str}'")
 
     @property
     def is_nested_type(self):

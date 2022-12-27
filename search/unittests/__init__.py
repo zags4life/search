@@ -41,7 +41,6 @@ def run(test_case_filter):
 
     for test, log in filtered_tests:
         try:
-            log.info(f'{test.__name__}')
             test()
             log.info(f'{test.__name__} - pass')
         except AssertionError as e:
