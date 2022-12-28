@@ -1,7 +1,8 @@
 # utils.py
 import logging
 
-from ... import search
+from search import search
+
 from .. import TestObject
 
 

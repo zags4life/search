@@ -1,15 +1,15 @@
-# unittest/__init__.py
-
+# unittests/__init__.py
 from datetime import datetime
 import logging
 import re
+
+from search import Query, InvalidQueryError
 
 from .testobject import (
     TestObject,
     PropertyTestObject,
     NestedTestObject
 )
-from ..query import Query, InvalidQueryError
 
 
 logger = logging.getLogger(__name__)

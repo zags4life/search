@@ -4,11 +4,10 @@ import timeit
 
 from . import logger
 from .. import test
-from ...query import Query
+
 
 BUILTIN_OBJECT_SETUP = """
-from search.query import Query
-q = Query('fo=bar')
+from search import search
 values=[
     {{'x': 1, 'y': 2, 'foo': 3}},
     dict(x=1, y=2, foo='bar'),
@@ -21,9 +20,10 @@ values=[
 
 EXCEPTION_HANDLING_STMT = """
 try:
-    q(values)
+    search('fo=bar and !(x=2 and y = 3)', values)
 except Exception as e:
     print(e)
+    raise
 """
 
 
@@ -104,7 +104,7 @@ def execution_performance_large_TestObject_test():
     count = 600000
 
     setup_str = """
-from search.query import Query
+from search import Query
 from search.unittests.testobject import TestObject
 q = Query('fo=bar')
 values=[
@@ -132,7 +132,7 @@ def execution_performance_large_PropertyTestObject_test():
     count = 600000
 
     setup_str = """
-from search.query import Query
+from search import Query
 from search.unittests.testobject import PropertyTestObject
 q = Query('fo=bar')
 values=[
