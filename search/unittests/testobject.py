@@ -1,6 +1,12 @@
 # unittests/testobject.py
 
+
 class TestObject(object):
+    '''Test object that will create an attribute for each key/value pair in
+    kwargs.
+    
+    This object is required to test searching for attribute values.
+    '''
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
@@ -45,19 +51,48 @@ class TestObject(object):
 
 
 class NestedTestObject(TestObject):
+    '''A test object that supports, and created, child objects stores as 
+    attributes.  Constructor only supports kwargs and support key values
+    in the format of `foo.bar.gurp`.  Key values in this format will be 
+    split, and each part will become a child object.
+    
+    E.g. kwargs = {'name.age': 42}
+    
+    This will result in an attribute named `name` whose value is 
+    NestedTestObject, which in turn has an attribute named `age`
+    with the value `42`.
+    
+    This object is required to test searching for nested values
+    '''
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            if '.' in k:
-                parts = k.split('.')
+        for key, value in kwargs.items():
+            # If key contains '.', then we need to recursively build nested 
+            # objects.
+            if '.' in key:
+                parts = key.split('.')
                 assert len(parts) > 1
-                attr_name = parts[0]
-                attr_value = NestedTestObject(**{'.'.join(parts[1:]): v})
-            else:
-                attr_name, attr_value = k, v
-            setattr(self, attr_name, attr_value)
+                key = parts[0]
+                value = NestedTestObject(**{'.'.join(parts[1:]): value})
+            
+            # Set the attribute name and value
+            setattr(self, key, value)
 
 
 class PropertyTestObject(TestObject):
+    '''Test object that creates a property for each key in kwargs and sets the
+    properties value to value.
+    
+    E.g. kwargs = {'name': 'Mike', 'age': 42}
+    
+    The resulting object would have two properties, `name` and `age` 
+    respectively.
+    
+    Note: Because properties are set at the class level, if you create multiple
+    instances of this object, all objects will have the same properties, 
+    even if you provide different kwargs when constructing each object.
+    
+    This object is required to test searching for property values
+    '''
     def __init__(self, **kwargs):
         for prop_name, prop_value in kwargs.items():
             setattr(
@@ -78,6 +113,7 @@ class PropertyTestObject(TestObject):
 
     @staticmethod
     def __make_prop(value):
+        '''Create a property with a getter, which returns `value`.'''
         def getter(self):
             return value
         return property(getter)
