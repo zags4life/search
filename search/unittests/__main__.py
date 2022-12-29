@@ -13,7 +13,14 @@ from . import run
 def main(tests_to_run):
     curdir = os.path.abspath(os.path.curdir)
     package_path = os.path.dirname(os.path.abspath(__file__))
-    package = package_path.replace(curdir, '').replace('\\', '')
+
+    # Determine the package name
+    package = '.'.join(
+        p.replace('\\', '')
+        for p in os.path.split(package_path.replace(curdir, '')) if p
+    )
+    if package.startswith('.'):
+        package = package[1:]
 
     # import all python files in this module
     for root, dirs, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
@@ -46,8 +53,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
-        # format='%(name)-15s %(message)s',
-        format='%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+        format='%(name)-15s %(message)s' if not args.log_file \
+            else '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
         filename=args.log_file,
         filemode='w'
     )
