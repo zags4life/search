@@ -44,8 +44,6 @@ class NotStatement(Condition):
 
     @stacktrace(logger)
     def __call__(self, values):
-        if not isinstance(values, set):
-            values = set(values)
         return values - self.condition(values)
 
     def __str__(self):
