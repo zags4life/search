@@ -27,13 +27,12 @@ class TestObject(object):
             return False
 
         match = True
-        for k in self.__dict__.keys():
-            match &= k in other.__dict__
+        for key in self.__dict__:
+            match &= key in other.__dict__
 
         if match:
             for attr, value in self.__dict__.items():
-                other_value = getattr(other, attr)
-                match &= value == other_value
+                match &= value == getattr(other, attr)
         return match
 
     @classmethod

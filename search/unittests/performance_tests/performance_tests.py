@@ -3,6 +3,7 @@
 import timeit
 
 from . import logger
+from .utils import run_perf_test
 from .. import test
 
 
@@ -62,7 +63,7 @@ def execution_performance_test():
     iterations = 10000
     count = 6
 
-    _run_perf_test(
+    run_perf_test(
         iterations,
         count,
         setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
@@ -74,7 +75,7 @@ def execution_performance_medium_test():
     iterations = 100
     count = 6000
 
-    _run_perf_test(
+    run_perf_test(
         iterations,
         count,
         setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
@@ -86,7 +87,7 @@ def execution_performance_large_test():
     iterations = 10
     count = 600000
 
-    _run_perf_test(
+    run_perf_test(
         iterations,
         count,
         setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
@@ -113,7 +114,7 @@ values=[
 ]*{0}
 """.format(int(count/6)) # There are already 6 items
 
-    _run_perf_test(iterations, count, setup_str, statement="q(values)")
+    run_perf_test(iterations, count, setup_str, statement="q(values)")
 
 
 @test(logger)
@@ -137,42 +138,28 @@ values=[
 
     statement = 'q(values)'
 
-    _run_perf_test(iterations, count, setup_str, statement)
+    run_perf_test(iterations, count, setup_str, statement)
 
 
-def _run_perf_test(iterations, count, setup, statement) -> None:
-    '''Run a performance test
+@test(logger)
+def execution_performance_large_NestedTestObject_test():
+    iterations = 10
+    count = 600000
 
-    Parameters:
-    iterations - an int representing the number of iterations to run
-    count - The number of items in the list
-    setup - The setup statement, used to setup to test
-    statement - The statement to execute the test
-    '''
-    logger.info(f"{'Total iterations':>25}: {iterations:>10,}")
-    logger.info(f"{'Total items':>25}: {count:>10,}")
+    setup_str = """
+from search import search
+from search.unittests.testobject import NestedTestObject
 
-    total_time = timeit.timeit(
-        stmt=_wrap_cmd(statement),
-        setup=_wrap_cmd(setup),
-        number=iterations)
+values=[
+    NestedTestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+    NestedTestObject(**dict(x=1, y=2, foo='bar')),
+    NestedTestObject(**dict(x='3', y=2, foo='gurp')),
+    NestedTestObject(**dict(x=3, y=2, foo='gurp')),
+    NestedTestObject(**{{'person.name': 'Mike', 'fo0d': 'bar'}}),
+    NestedTestObject(**{{'person.name': 'Mike', 'foo': 'bar'}}),
+]*{0}
+""".format(int(count/6)) # There are already 6 items
 
-    avg_time = (total_time * 1000) / iterations
-    suffix = 'ms'
+    statement = "search('person.name = Mike', values)"
 
-    if avg_time > 1000:
-        avg_time /= 1000
-        suffix = 'secs'
-
-    logger.info(f"{'Avg time': >25}: {avg_time:>10,.4f} {suffix}")
-
-def _wrap_cmd(cmd):
-    '''Helper method that wraps any command in a try/catch block'''
-    lines = cmd.split('\n')
-    lines = [' ' * 4 + line for line in lines if line]
-    lines.insert(0, 'try:')
-    lines.append('except Exception as e:')
-    lines.append('    print(e)')
-    lines.append('    raise')
-
-    return '\n'.join(lines)
+    run_perf_test(iterations, count, setup_str, statement)

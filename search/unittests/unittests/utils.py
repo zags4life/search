@@ -9,7 +9,7 @@ from .. import TestObject
 logger = logging.getLogger(__name__)
 
 
-def log_results(expected, actual):
+def log_results(expected, actual) -> None:
     '''Log results, at debug log level.  This method will first log the 
     'actual' set, then the 'expected' set.
     
@@ -28,7 +28,7 @@ def log_results(expected, actual):
         logger.debug(f'    {result}')
 
 
-def results_are_equal(object1, object2):
+def results_are_equal(object1, object2) -> bool:
     '''Validates that two objects are equal.  If the two objects are equal, 
     return True; otherwise False.
     '''
@@ -44,7 +44,7 @@ def results_are_equal(object1, object2):
     return object1 == object2
 
 
-def validate_results(expected, actual):
+def validate_results(expected, actual) -> None:
     '''Validate two sets are the same.  If they are not, an AssertionError is
     raised.
     
@@ -85,7 +85,7 @@ def validate_results(expected, actual):
         f"{' '.join([f'{v}' for v, m in matches if not m])}"
 
 
-def run_unittest_and_verify_results(query_str, values, expected_values):
+def run_unittest_and_verify_results(query_str, values, expected_values) -> None:
     '''Runs a query using the provided query string and value collection, then
     validates the results against the expected results collection.  An 
     AssertionError is raised if the test fails
@@ -96,5 +96,7 @@ def run_unittest_and_verify_results(query_str, values, expected_values):
     expected_values - a collection of expected values to validate against the
         results returned by *query*
     '''
-    results = search(query_str, values)
-    validate_results(expected_values, results)
+    validate_results(
+        expected=expected_values, 
+        actual=search(query_str, values)
+    )
