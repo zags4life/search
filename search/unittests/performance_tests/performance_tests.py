@@ -15,7 +15,7 @@ values=[
     dict(x=3, y=2, foo='gurp'),
     [1,2,3,4],
     {{'name': 'Mike', 'fo0d': 'bar'}},
-    ]*{0}
+]*{0}
 """
 
 EXCEPTION_HANDLING_STMT = """
@@ -172,7 +172,6 @@ def _run_perf_test(iterations, count, setup, statement) -> None:
         setup=setup,
         number=iterations)
 
-    # logger.info(f"{'total time': >25}: {total_time:,.2f} secs")
     avg_time = (total_time * 1000) / iterations
     suffix = 'ms'
     

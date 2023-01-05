@@ -29,19 +29,19 @@ test = unittest
 
 def run(test_case_filter):
     '''Run tests based on the test filter, as a string, provided by the caller.
-    
+
     Parameters:
         test_case_filter - a regular expression used to filter tests
-        
+
     Returns - an int representing the number of failing test cases.
     '''
     start_time = time.time()
 
-    filtered_tests = [t for t in REGISTERED_UNITTESTS 
+    filtered_tests = [t for t in REGISTERED_UNITTESTS
         if re.search(test_case_filter, t[0].__name__)]
     total_count = len(filtered_tests)
     failed_tests = []
-    
+
     padding = max(len(t.__name__) for t, _ in filtered_tests)
 
     for test, log in filtered_tests:
@@ -53,8 +53,7 @@ def run(test_case_filter):
             failed_tests.append(test.__name__)
 
     _print_results(total_count, failed_tests, start_time)
-    
-    
+
     return len(failed_tests)
 
 
