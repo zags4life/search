@@ -6,6 +6,8 @@ from . import logger
 from .. import test
 
 
+TEST_QUERY = 'fo=bar and !(x=2 and y = 3)'
+
 BUILTIN_OBJECT_SETUP = """
 from search import search
 values=[
@@ -18,13 +20,7 @@ values=[
 ]*{0}
 """
 
-EXCEPTION_HANDLING_STMT = """
-try:
-    search('fo=bar and !(x=2 and y = 3)', values)
-except Exception as e:
-    print(e)
-    raise
-"""
+EXCEPTION_HANDLING_STMT = f"search('{TEST_QUERY}', values)"
 
 
 @test(logger)
@@ -67,9 +63,9 @@ def execution_performance_test():
     count = 6
 
     _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
         statement=EXCEPTION_HANDLING_STMT
     )
 
@@ -79,9 +75,9 @@ def execution_performance_medium_test():
     count = 6000
 
     _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
         statement=EXCEPTION_HANDLING_STMT
     )
 
@@ -91,9 +87,9 @@ def execution_performance_large_test():
     count = 600000
 
     _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
         statement=EXCEPTION_HANDLING_STMT
     )
 
@@ -117,13 +113,7 @@ values=[
 ]*{0}
 """.format(int(count/6)) # There are already 6 items
 
-    statement = """
-try:
-    q(values)
-except Exception as e:
-    print(e)
-"""
-    _run_perf_test(iterations, count, setup_str, statement)
+    _run_perf_test(iterations, count, setup_str, statement="q(values)")
 
 
 @test(logger)
@@ -145,12 +135,7 @@ values=[
 ]*{0}
 """.format(int(count/6)) # There are already 6 items
 
-    statement = """
-try:
-    q(values)
-except Exception as e:
-    print(e)
-"""
+    statement = 'q(values)'
 
     _run_perf_test(iterations, count, setup_str, statement)
 
@@ -166,17 +151,28 @@ def _run_perf_test(iterations, count, setup, statement) -> None:
     '''
     logger.info(f"{'Total iterations':>25}: {iterations:>10,}")
     logger.info(f"{'Total items':>25}: {count:>10,}")
-    
+
     total_time = timeit.timeit(
-        stmt=statement,
-        setup=setup,
+        stmt=_wrap_cmd(statement),
+        setup=_wrap_cmd(setup),
         number=iterations)
 
     avg_time = (total_time * 1000) / iterations
     suffix = 'ms'
-    
+
     if avg_time > 1000:
         avg_time /= 1000
         suffix = 'secs'
-    
+
     logger.info(f"{'Avg time': >25}: {avg_time:>10,.4f} {suffix}")
+
+def _wrap_cmd(cmd):
+    '''Helper method that wraps any command in a try/catch block'''
+    lines = cmd.split('\n')
+    lines = [' ' * 4 + line for line in lines if line]
+    lines.insert(0, 'try:')
+    lines.append('except Exception as e:')
+    lines.append('    print(e)')
+    lines.append('    raise')
+
+    return '\n'.join(lines)
