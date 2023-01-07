@@ -3,9 +3,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='search',
-    version='2.2.0',
+    version='2.3.0',
     author='Travis Avery',
     python_requires='>=3.7',
     packages=find_packages(),
-    install_requires=['ply'],
+    install_requires=[
+        'ply',
+        'six',
+    ],
 )

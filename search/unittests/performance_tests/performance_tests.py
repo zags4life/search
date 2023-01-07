@@ -3,12 +3,14 @@
 import timeit
 
 from . import logger
+from .utils import run_perf_test
 from .. import test
-from ...query import Query
+
+
+TEST_QUERY = 'fo=bar and !(x=2 and y = 3)'
 
 BUILTIN_OBJECT_SETUP = """
-from search.query import Query
-q = Query('fo=bar')
+from search import search
 values=[
     {{'x': 1, 'y': 2, 'foo': 3}},
     dict(x=1, y=2, foo='bar'),
@@ -16,14 +18,16 @@ values=[
     dict(x=3, y=2, foo='gurp'),
     [1,2,3,4],
     {{'name': 'Mike', 'fo0d': 'bar'}},
-    ]*{0}
+]*{0}
 """
 
-EXCEPTION_HANDLING_STMT = """
-try:
-    q(values)
-except Exception as e:
-    print(e)
+BUILTIN_STATEMENT = f"""
+results = search('{TEST_QUERY}', values)
+expected_count = {{0}} * 2
+
+assert len(results) == expected_count, \
+    f'Invalid number of results: Expected: {{{{expected_count}}}}, ' \
+    f'Actual: {{{{len(results)}}}}'
 """
 
 
@@ -66,11 +70,11 @@ def execution_performance_test():
     iterations = 10000
     count = 6
 
-    _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
-        statement=EXCEPTION_HANDLING_STMT
+    run_perf_test(
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
+        statement=BUILTIN_STATEMENT.format(int(count/6))
     )
 
 @test(logger)
@@ -78,106 +82,129 @@ def execution_performance_medium_test():
     iterations = 100
     count = 6000
 
-    _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
-        statement=EXCEPTION_HANDLING_STMT
+    run_perf_test(
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
+        statement=BUILTIN_STATEMENT.format(int(count/6))
     )
+
+
+LARGE_TEST_COUNT = 600000
+LARGE_TEST_ITERATION = 10
+
 
 @test(logger)
 def execution_performance_large_test():
-    iterations = 10
-    count = 600000
+    iterations = LARGE_TEST_ITERATION
+    count = LARGE_TEST_COUNT
 
-    _run_perf_test(
-        iterations, 
-        count, 
-        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)), 
-        statement=EXCEPTION_HANDLING_STMT
+    run_perf_test(
+        iterations,
+        count,
+        setup=BUILTIN_OBJECT_SETUP.format(int(count/6)),
+        statement=BUILTIN_STATEMENT.format(int(count/6))
     )
 
 
 @test(logger)
 def execution_performance_large_TestObject_test():
-    iterations = 10
-    count = 600000
+    iterations = LARGE_TEST_ITERATION
+    count = LARGE_TEST_COUNT
 
     setup_str = """
-from search.query import Query
+from search import search
 from search.unittests.testobject import TestObject
-q = Query('fo=bar')
-values=[
-    TestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
-    TestObject(**dict(x=1, y=2, foo='bar')),
-    TestObject(**dict(x='3', y=2, foo='gurp')),
-    TestObject(**dict(x=3, y=2, foo='gurp')),
-    TestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
-    TestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
-]*{0}
+
+values = []
+
+for _ in range({0}):
+    values.extend([
+        TestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+        TestObject(**dict(x=1, y=2, foo='bar')),
+        TestObject(**dict(x='3', y=2, foo='gurp')),
+        TestObject(**dict(x=3, y=2, foo='gurp')),
+        TestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+        TestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
+    ])
 """.format(int(count/6)) # There are already 6 items
 
     statement = """
-try:
-    q(values)
-except Exception as e:
-    print(e)
-"""
-    _run_perf_test(iterations, count, setup_str, statement)
+results = search('fo=bar', values)
+expected_count = {0}
+
+assert len(results) == expected_count, \
+    f'Unexpected numbers of results.  ' \
+    f'Expected: {{expected_count}}.  ' \
+    f'Actual: {{len(results)}}'
+""".format(int(count/6*3))
+
+    run_perf_test(iterations, count, setup_str, statement=statement)
 
 
 @test(logger)
 def execution_performance_large_PropertyTestObject_test():
-    iterations = 10
-    count = 600000
+    iterations = LARGE_TEST_ITERATION
+    count = LARGE_TEST_COUNT
 
     setup_str = """
-from search.query import Query
+from search import search
 from search.unittests.testobject import PropertyTestObject
-q = Query('fo=bar')
-values=[
-    PropertyTestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
-    PropertyTestObject(**dict(x=1, y=2, foo='bar')),
-    PropertyTestObject(**dict(x='3', y=2, foo='gurp')),
-    PropertyTestObject(**dict(x=3, y=2, foo='gurp')),
-    PropertyTestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
-    PropertyTestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
-]*{0}
+
+values = []
+
+for _ in range({0}):
+    values.extend([
+        PropertyTestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+        PropertyTestObject(**dict(x=1, y=2, foo='bar')),
+        PropertyTestObject(**dict(x='3', y=2, foo='gurp')),
+        PropertyTestObject(**dict(x=3, y=2, foo='gurp')),
+        PropertyTestObject(**{{'name': 'Mike', 'fo0d': 'bar'}}),
+        PropertyTestObject(**{{'name': 'Mike', 'foo': 'bar'}}),
+    ])
+    
+for v in values:
+    v.update()
 """.format(int(count/6)) # There are already 6 items
 
     statement = """
-try:
-    q(values)
-except Exception as e:
-    print(e)
-"""
+results = search('name = Mike', values)
+expected_count = {0}
 
-    _run_perf_test(iterations, count, setup_str, statement)
+assert len(results) == expected_count, \
+    f'Unexpected numbers of results.  ' \
+    f'Expected: {{expected_count}}.  ' \
+    f'Actual: {{len(results)}}'
+""".format(int(count/6*2))
+
+    run_perf_test(iterations, count, setup_str, statement)
 
 
-def _run_perf_test(iterations, count, setup, statement) -> None:
-    '''Run a performance test
+@test(logger)
+def execution_performance_large_NestedTestObject_test():
+    iterations = LARGE_TEST_ITERATION
+    count = LARGE_TEST_COUNT
 
-    Parameters:
-    iterations - an int representing the number of iterations to run
-    count - The number of items in the list
-    setup - The setup statement, used to setup to test
-    statement - The statement to execute the test
-    '''
-    logger.info(f"{'Total iterations':>25}: {iterations:>10,}")
-    logger.info(f"{'Total items':>25}: {count:>10,}")
-    
-    total_time = timeit.timeit(
-        stmt=statement,
-        setup=setup,
-        number=iterations)
+    setup_str = """
+from search import search
+from search.unittests.testobject import NestedTestObject
 
-    # logger.info(f"{'total time': >25}: {total_time:,.2f} secs")
-    avg_time = (total_time * 1000) / iterations
-    suffix = 'ms'
-    
-    if avg_time > 1000:
-        avg_time /= 1000
-        suffix = 'secs'
-    
-    logger.info(f"{'Avg time': >25}: {avg_time:>10,.4f} {suffix}")
+values = []
+
+for _ in range({0}):
+    values.extend([
+        NestedTestObject(**{{'x': 1, 'y': 2, 'foo': 3}}),
+        NestedTestObject(**dict(x=1, y=2, foo='bar')),
+        NestedTestObject(**dict(x='3', y=2, foo='gurp')),
+        NestedTestObject(**dict(x=3, y=2, foo='gurp')),
+        NestedTestObject(**{{'person.name': 'Mike', 'fo0d': 'bar'}}),
+        NestedTestObject(**{{'person.name': 'Mike', 'foo': 'bar'}}),
+    ])
+""".format(int(count/6)) # There are already 6 items
+
+    statement = """
+results = search('person.name = Mike', values)
+assert len(results) == {0}
+""".format(int(count/6*2))
+
+    run_perf_test(iterations, count, setup_str, statement)

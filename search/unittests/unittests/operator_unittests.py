@@ -1,11 +1,10 @@
 # operator_unittests.py
-from . import logger
+from . import logger, run_unittest_and_verify_results
 from .. import unittest
 from ..testobject import (
     TestObject,
     PropertyTestObject
 )
-from .utils import run_unittest_and_verify_results
 
 
 @unittest(logger)
@@ -141,16 +140,17 @@ def unittest_like():
 
 
 @unittest(logger)
-def unittest_not():
-    for query_str in ['!name like (?i)mike', '!(name like (?i)mike)']:
-        values = [
-            TestObject(x=3, y=2, foo='gurp'),
-            TestObject(x=3, y=2, foo='gurp', name='mIke'),
-            TestObject(x=3, y=2, foo='gurp', name='mike'),
-            TestObject(x=1, y=2, foo='gurp', name='Mike'),
-            TestObject(x=2, y=2, foo='gurp'),
-            TestObject(x=4, y=2, foo='gurp'),
-        ]
-        expected_results = values[:1] + values[-2:]
+def unittest_any():
+    query_str = 'name'
 
-        run_unittest_and_verify_results(query_str, values, expected_results)
+    values = [
+        TestObject(x=3, y=2, foo='gurp'),
+        TestObject(x=3, y=2, foo='gurp', name='mIke'),
+        TestObject(x=3, y=2, foo='gurp', name='mike'),
+        TestObject(x=1, y=2, foo='gurp', name='Mike'),
+        TestObject(x=2, y=2, foo='gurp'),
+        TestObject(x=4, y=2, foo='gurp'),
+    ]
+    expected_results = values[1:4]
+
+    run_unittest_and_verify_results(query_str, values, expected_results)

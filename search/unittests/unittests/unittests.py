@@ -1,12 +1,12 @@
 # unittests.py
 
-from . import logger
+from . import logger, run_unittest_and_verify_results
+
 from .. import (
     unittest, 
     TestObject, 
     PropertyTestObject
 )
-from .utils import run_unittest_and_verify_results
 
 
 @unittest(logger)

@@ -49,31 +49,42 @@ class Query(object):
         Returns - a collection of elements that match the search criteria
         '''
 
+        # If there is no condition, return the entire set
         if not self.__condition:
             return values
 
-        converted_values = []
+        # Iterate through the set of values and convert any non-hashable values
+        # to hashable values.
+        hashable_values = []
         for value in values:
             if isinstance(value, (list, dict)):
-                converted_values.append(HashableWrapperObject(value))
+                hashable_values.append(HashableWrapperObject(value))
             else:
-                converted_values.append(value)
-        values = converted_values
+                hashable_values.append(value)
 
-        results = self.__condition(set(values))
+        # Convert hashable_values to a set then execute the condition
+        results = self.__condition(set(hashable_values))
+
+        # Iterate through the results and convert all values back to their
+        # original form
         converted_results = []
         for result in results:
             if isinstance(result, HashableWrapperObject):
                 converted_results.append(result._original_object)
             else:
                 converted_results.append(result)
+
+        # Return the converted set of results, which includes non-hashable
+        # values
         return converted_results
 
     def __str__(self):
+        '''Returns a string representing the compiled query.'''
         return f'QUERY: {self.__condition}'
 
 
 class HashableWrapperObject:
+    '''Wrapper object for non-hashable objects.'''
     def __init__(self, value):
         if isinstance(value, list):
             value = {str(k):v for k,v in enumerate(value)}
@@ -99,6 +110,8 @@ def search(search_str, values, dry_run=False):
 
     Returns - a subset, as a list, of objects from value that match the search
     '''
+    assert isinstance(search_str, str), \
+        f'search_str must be of type string: actual {type(search_str)}'
     query = Query(search_str)
 
     if dry_run:
