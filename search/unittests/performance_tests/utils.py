@@ -16,9 +16,12 @@ def run_perf_test(iterations, count, setup, statement) -> None:
     logger.info(f"{'Total iterations':>25}: {iterations:>10,}")
     logger.info(f"{'Total items':>25}: {count:>10,}")
 
+    statement = _wrap_cmd(statement)
+    setup = _wrap_cmd(setup)
+
     total_time = timeit.timeit(
-        stmt=_wrap_cmd(statement),
-        setup=_wrap_cmd(setup),
+        stmt=statement,
+        setup=setup,
         number=iterations)
 
     avg_time = (total_time * 1000) / iterations
@@ -32,11 +35,9 @@ def run_perf_test(iterations, count, setup, statement) -> None:
 
 def _wrap_cmd(cmd):
     '''Helper method that wraps any command in a try/catch block'''
-    lines = cmd.split('\n')
-    lines = [' ' * 4 + line for line in lines if line]
+    lines = cmd.strip().split('\n')
+    lines = [' ' * 4 + line for line in lines]
     lines.insert(0, 'try:')
     lines.append('except Exception as e:')
-    lines.append('    print(e)')
     lines.append('    raise')
-
     return '\n'.join(lines)

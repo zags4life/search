@@ -110,6 +110,8 @@ def search(search_str, values, dry_run=False):
 
     Returns - a subset, as a list, of objects from value that match the search
     '''
+    assert isinstance(search_str, str), \
+        f'search_str must be of type string: actual {type(search_str)}'
     query = Query(search_str)
 
     if dry_run:

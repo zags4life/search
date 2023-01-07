@@ -49,7 +49,8 @@ def run(test_case_filter):
             test()
             log.info(f'{test.__name__:<{padding}}  pass')
         except AssertionError as e:
-            log.info(f'{test.__name__:<{padding}}  FAIL\n    {e}')
+            log.info(f'    {e}')
+            log.info(f'{test.__name__:<{padding}}  FAIL')
             failed_tests.append(test.__name__)
 
     _print_results(total_count, failed_tests, start_time)

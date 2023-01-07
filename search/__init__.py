@@ -3,5 +3,6 @@ from .query import (
     InvalidQueryError,
     query,
     Query,
-    search
+    search,
 )
+from .decorators import show_stack_values

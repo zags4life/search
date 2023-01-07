@@ -120,10 +120,7 @@ class Field(object):
             and op_func returns True when comparing the matching attribute
             value to this Field object's value attribute.  Otherwise False.
         '''
-        _, matching_value = cls.__is_matching_attr_name(
-            obj,
-            regex
-        )
+        _, matching_value = cls.__is_matching_attr_name(obj, regex)
 
         # If the obj has a matching name or the value is a special case
         #
@@ -132,12 +129,13 @@ class Field(object):
         # 2) the value we are looking for is empty string
         #
         if (matching_value
-                or matching_value is None and value == 'None'
-                or matching_value == '' and value == ''):
-            converted_value = cls.__convert_type(type(matching_value), value)
+                or matching_value is None and value in ('None', '.*')
+                or matching_value == '' and value in ('', '.*')):
 
-            if op_func(matching_value, converted_value):
-                return True
+            return op_func(
+                matching_value, 
+                cls.__convert_type(type(matching_value), value)
+            )
         return False
 
     ###########################################################################
@@ -175,10 +173,10 @@ class Field(object):
 
     @staticmethod
     def __is_matching_attr_name(other, regex):
-        '''Determines if 'other' contains an attribute that matches self.name.
-        This method will first extract all public attributes and properties
-        from the 'other' object, then compares the attributes names to
-        self.name using a precompiled regular expression.  If an attribute
+        '''This method determines if 'other' contains an attribute that matches
+        regex. This method will first extract all public attributes and 
+        properties from the 'other' object, then compares the attributes names
+        to regex using a precompiled regular expression.  If an attribute
         is a match the attributes value is returned to the caller.
 
         Parameters
