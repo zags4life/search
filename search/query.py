@@ -81,7 +81,7 @@ class Query(object):
     def __str__(self):
         '''Returns a string representing the compiled query.'''
         return f'QUERY: {self.__condition}'
-
+    __repr__ = __str__
 
 class HashableWrapperObject:
     '''Wrapper object for non-hashable objects.'''
