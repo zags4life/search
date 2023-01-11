@@ -27,7 +27,7 @@ def unittest(log=logger):
 test = unittest
 
 
-def run(test_case_filter):
+def run(test_case_filter, list_tests=False):
     '''Run tests based on the test filter, as a string, provided by the caller.
 
     Parameters:
@@ -46,7 +46,8 @@ def run(test_case_filter):
 
     for test, log in filtered_tests:
         try:
-            test()
+            if not list_tests:
+                test()
             log.info(f'{test.__name__:<{padding}}  pass')
         except AssertionError as e:
             log.info(f'    {e}')
