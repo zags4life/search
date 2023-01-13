@@ -9,7 +9,7 @@ LARGE_TEST_ITERATION = 10
 
 
 @test(logger)
-def execution_performance_large_PropertyTestObject_test():
+def perf_execution_large_PropertyTestObject_test():
     iterations = LARGE_TEST_ITERATION
     count = LARGE_TEST_COUNT 
 
@@ -47,7 +47,7 @@ assert len(results) == expected_count, \
 
 
 @test(logger)
-def execution_performance_large_NestedTestObject_test():
+def perf_execution_large_NestedTestObject_test():
     iterations = LARGE_TEST_ITERATION
     count = LARGE_TEST_COUNT
 

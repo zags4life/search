@@ -29,7 +29,7 @@ assert len(results) == expected_count, \
 
 
 @test(logger)
-def execution_equality_and_equality_perf_test():
+def perf_execution_equality_and_equality_test():
     iterations = 10000
     count = 1
 
@@ -41,7 +41,7 @@ def execution_equality_and_equality_perf_test():
     )
 
 @test(logger)
-def execution_equality_and_equality_perf_medium_test():
+def perf_execution_equality_and_equality_medium_test():
     iterations = 100
     count = 1000
 
@@ -53,7 +53,7 @@ def execution_equality_and_equality_perf_medium_test():
     )
 
 @test(logger)
-def execution_equality_and_equality_perf_large_test():
+def perf_execution_equality_and_equality_large_test():
     iterations = 100
     count = 100000
 

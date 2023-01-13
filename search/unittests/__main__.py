@@ -56,9 +56,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
-        #format='%(name)-15s %(message)s' if not args.log_file \
         format='%(message)s' if not args.log_file \
-            else '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+            else '%(asctime)s %(levelname)-8s %(name)-30s %(message)s',
         filename=args.log_file,
         filemode='w'
     )
