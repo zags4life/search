@@ -44,7 +44,8 @@ def run(test_filter, list_tests=False):
     total_count = len(filtered_tests)
     failed_tests = []
 
-    padding = max(len(t.__name__) for t, _ in filtered_tests)
+    if filtered_tests:
+        padding = max(len(t.__name__) for t, _ in filtered_tests)
 
     for test, _ in filtered_tests:
         name = ' '.join(
