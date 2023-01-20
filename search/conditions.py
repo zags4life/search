@@ -139,6 +139,7 @@ class AnyExpression(Expression):
     match only.
     '''
     EXPRESSION_NAME = 'ANY'
+    EXPRESSION = lambda *args: True
 
     def __init__(self, name):
         self.__org_name = name
@@ -148,10 +149,6 @@ class AnyExpression(Expression):
         name = name if name.endswith('$') else name + '$'
 
         super(AnyExpression, self).__init__(name, '.*')
-
-    def operator_any(*args):
-        return True
-    EXPRESSION = operator_any
 
     def __str__(self):
         return f'({self.__class__.EXPRESSION_NAME} {self.__org_name})'
