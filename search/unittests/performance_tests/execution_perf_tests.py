@@ -1,6 +1,4 @@
 # execution_perf_tests.py
-
-from . import logger
 from .utils import run_perf_test
 from .. import test
 
@@ -28,7 +26,7 @@ assert len(results) == expected_count, \
 """
 
 
-@test(logger)
+@test
 def perf_execution_equality_and_equality_test():
     iterations = 10000
     count = 1
@@ -40,7 +38,7 @@ def perf_execution_equality_and_equality_test():
         statement=BUILTIN_STATEMENT.format(count)
     )
 
-@test(logger)
+@test
 def perf_execution_equality_and_equality_medium_test():
     iterations = 100
     count = 1000
@@ -52,7 +50,7 @@ def perf_execution_equality_and_equality_medium_test():
         statement=BUILTIN_STATEMENT.format(count)
     )
 
-@test(logger)
+@test
 def perf_execution_equality_and_equality_large_test():
     iterations = 100
     count = 100000

@@ -17,14 +17,12 @@ logger = logging.getLogger(__name__)
 
 REGISTERED_UNITTESTS = []
 
-#NB: `log` is not needed
-#   This should all be converted to pytest
-def unittest(log=logger):
+
+#NB: This should all be converted to pytest
+def unittest(func):
     '''Decorator to register a test'''
-    def decorator(func):
-        REGISTERED_UNITTESTS.append((func, log))
-        return func
-    return decorator
+    REGISTERED_UNITTESTS.append(func)
+    return func
 test = unittest
 
 
@@ -40,14 +38,14 @@ def run(test_filter, list_tests=False):
 
 
     filtered_tests = [t for t in REGISTERED_UNITTESTS
-        if re.search(test_filter, t[0].__name__)]
+        if re.search(test_filter, t.__name__)]
     total_count = len(filtered_tests)
     failed_tests = []
 
     if filtered_tests:
-        padding = max(len(t.__name__) for t, _ in filtered_tests)
+        padding = max(len(t.__name__) for t in filtered_tests)
 
-    for test, _ in filtered_tests:
+    for test in filtered_tests:
         name = ' '.join(
             [p.title() for p in test.__name__.replace('_', ' ').split()])
         name = name.replace('testobject', 'TestObject')

@@ -1,6 +1,6 @@
 # nest_objects.py
 
-from . import logger, run_unittest_and_verify_results
+from . import run_unittest_and_verify_results
 from .. import (
     unittest,
     TestObject,
@@ -8,7 +8,7 @@ from .. import (
 )
 
 
-@unittest(logger)
+@unittest
 def unittest_nested_object():
     for query_str in ['foo.bar.gurp=10', 'foo\.bar\.gurp=10']:
 
@@ -24,7 +24,7 @@ def unittest_nested_object():
         run_unittest_and_verify_results(query_str, values, expected_values)
 
 
-@unittest(logger)
+@unittest
 def unittest_nested_object_wildcard_name():
     query_str = 'fo.*\.[a-z]+\.gurp=10'
     values = [

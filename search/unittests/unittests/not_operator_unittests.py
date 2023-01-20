@@ -2,16 +2,10 @@
 
 from search import search
 
-from . import (
-    logger, 
-    run_unittest_and_verify_results, 
-    validate_results
-)
+from . import run_unittest_and_verify_results, validate_results
 from .. import unittest
-from ..testobject import (
-    TestObject,
-    PropertyTestObject
-)
+from ..testobject import TestObject, PropertyTestObject
+
 
 VALUES = [
     TestObject(x=3, y=2, foo='gurp'),
@@ -23,7 +17,7 @@ VALUES = [
 ]
 
 
-@unittest(logger)
+@unittest
 def unittest_not():
     '''Validate simple not operator'''
     for query_str in ['!name like (?i)mike', '!(name like (?i)mike)']:
@@ -34,7 +28,7 @@ def unittest_not():
         )
 
 
-@unittest(logger)
+@unittest
 def unittest_not_not():
     '''Validate that two not operators are equivalent to no not operator.
     E.g. NOT NOT condition == condition

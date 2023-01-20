@@ -1,6 +1,6 @@
 # unittests.py
 
-from . import logger, run_unittest_and_verify_results
+from . import run_unittest_and_verify_results
 
 from .. import (
     unittest, 
@@ -9,7 +9,7 @@ from .. import (
 )
 
 
-@unittest(logger)
+@unittest
 def unittest_test_objects():
     query_str = 'name like (?i)mike and ^fo{2}'
 
@@ -32,7 +32,7 @@ def unittest_test_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -55,7 +55,7 @@ def unittest_mix_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -74,7 +74,7 @@ def unittest_mix_objects_no_results():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_strings():
     query_str = 'name like (?i)mike'
     expected_results = [
@@ -94,7 +94,7 @@ def unittest_strings():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_empty_query():
     '''Verify that empty query string returns the complete set of values'''
     query_str = ''
@@ -112,7 +112,7 @@ def unittest_empty_query():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_int_and_query():
     ''''''
     query_str = 'x = 1 and y <= 5'
@@ -133,7 +133,7 @@ def unittest_int_and_query():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_mix_objects():
     query_str = 'x = 3 and (name like (?i)mike and ^fo{2})'
 
@@ -156,7 +156,7 @@ def unittest_mix_objects():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_mix_objects_no_results():
     query_str = 'x = 1 and (name like (?i)mike and ^fo{2})'
 
@@ -175,7 +175,7 @@ def unittest_mix_objects_no_results():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_lists_and_dicts_case_insensitive_regex():
     query_str = 'x = 3 or (name like (?i)mike and ^fo{2})'
 
@@ -200,7 +200,7 @@ def unittest_lists_and_dicts_case_insensitive_regex():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_lists_and_dicts_case_sensitive_regex():
     query_str = 'x = 3 or (name like mike and ^fo{2})'
 
@@ -223,7 +223,7 @@ def unittest_lists_and_dicts_case_sensitive_regex():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_None_value():
     query_str = 'x = None'
 
@@ -245,7 +245,7 @@ def unittest_None_value():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_empty_string_single_quotes():
     query_str = "x = ''"
 
@@ -267,7 +267,7 @@ def unittest_empty_string_single_quotes():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_empty_string_double_quotes():
     query_str = 'x = ""'
 
@@ -289,7 +289,7 @@ def unittest_empty_string_double_quotes():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_quoted_string_single_quotes():
     query_str = "name = 'mIke'"
 
@@ -311,7 +311,7 @@ def unittest_quoted_string_single_quotes():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_quoted_string_double_quotes():
     query_str = 'name = "mIke"'
 
@@ -333,7 +333,7 @@ def unittest_quoted_string_double_quotes():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
     
-@unittest(logger)
+@unittest
 def unittest_quoted_string_mixed_quotes():
     query_str = 'name = \'mIke"'
 

@@ -1,5 +1,4 @@
 # property_execution_perf_tests.py
-from . import logger
 from .utils import run_perf_test
 from .. import test
 
@@ -8,7 +7,7 @@ LARGE_TEST_COUNT = 100000
 LARGE_TEST_ITERATION = 10
 
 
-@test(logger)
+@test
 def perf_execution_large_PropertyTestObject_test():
     iterations = LARGE_TEST_ITERATION
     count = LARGE_TEST_COUNT 
@@ -46,7 +45,7 @@ assert len(results) == expected_count, \
     run_perf_test(iterations, count * 6, setup_str, statement)
 
 
-@test(logger)
+@test
 def perf_execution_large_NestedTestObject_test():
     iterations = LARGE_TEST_ITERATION
     count = LARGE_TEST_COUNT

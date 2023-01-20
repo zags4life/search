@@ -1,14 +1,12 @@
 # compile_perf_tests.py
-
 import timeit
 
-from . import logger
 from .. import test
 
 ITERATIONS = 10000
 PADDING = len('time per iteration')
 
-@test(logger)
+@test
 def perf_basic_compile_test():
     total_time = timeit.timeit(
         "Query('foo=bar')",
@@ -18,7 +16,7 @@ def perf_basic_compile_test():
     _log_results(total_time)
 
 
-@test(logger)
+@test
 def perf_complex_compile_test():
     total_time = timeit.timeit(
         "Query(\"foo=bar and (!(foo like bar or x) or name ='Tom')\")",
