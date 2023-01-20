@@ -45,7 +45,7 @@ class NotStatement(Condition):
         super().__init__()
         self.condition = condition
 
-    @stacktrace(logger)
+    @stacktrace
     def __call__(self, values):
         return values - self.condition(values)
 
@@ -75,7 +75,7 @@ class BooleanStatement(Condition):
 class AndStatement(BooleanStatement):
     '''Logical AND statement.  This class will AND two sets (conditions) together'''
 
-    @stacktrace(logger)
+    @stacktrace
     def __call__(self, values):
         return self.condition1(values) & self.condition2(values)
 
@@ -83,7 +83,7 @@ class AndStatement(BooleanStatement):
 class OrStatement(BooleanStatement):
     '''Logical OR statement.  This class will OR two sets (conditions) together'''
 
-    @stacktrace(logger)
+    @stacktrace
     def __call__(self, values):
         return self.condition1(values) | self.condition2(values)
 
@@ -115,7 +115,7 @@ class Expression(Condition):
         assert self.__class__.EXPRESSION_NAME, \
             f'{self.__class__.__name__} does not implement EXPRESSION_NAME'
 
-    @stacktrace(logger)
+    @stacktrace
     def __call__(self, values):
         '''Returns a set of values which match search criteria
 

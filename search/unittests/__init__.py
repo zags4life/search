@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 REGISTERED_UNITTESTS = []
 
-#NB: `log` is not needed
-#   This should all be converted to pytest
+#NB: This should all be converted to pytest
 def unittest(log=logger):
     '''Decorator to register a test'''
     def decorator(func):
