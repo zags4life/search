@@ -10,7 +10,9 @@ logger = logging.getLogger(__name__)
 from . import run
 
 
-def main(tests_to_run):
+def main(args):
+    tests_to_run = args.tests
+
     curdir = os.path.abspath(os.path.curdir)
     package_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,23 +42,24 @@ def main(tests_to_run):
             importlib.import_module(module, package)
 
     # run all tests
-    run(tests_to_run)
+    run(tests_to_run, args.list_tests)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--log-level',
+    parser.add_argument('--log-level',
         choices=['error', 'warning', 'info', 'debug'], default='info')
-    parser.add_argument('-lf', '--log-file')
+    parser.add_argument('--log-file')
     parser.add_argument('-t', '--tests', default='.*')
+    parser.add_argument('-l', '--list', dest='list_tests', action='store_true')
     args = parser.parse_args()
 
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
-        format='%(name)-15s %(message)s' if not args.log_file \
-            else '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+        format='%(message)s' if not args.log_file \
+            else '%(asctime)s %(levelname)-8s %(name)-30s %(message)s',
         filename=args.log_file,
         filemode='w'
     )
 
-    exit(main(args.tests))
+    exit(main(args))

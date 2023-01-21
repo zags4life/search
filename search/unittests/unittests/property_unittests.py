@@ -1,5 +1,5 @@
 # property_unittests.py
-from . import logger, run_unittest_and_verify_results
+from . import run_unittest_and_verify_results
 from .. import unittest
 from ..testobject import PropertyTestObject
 
@@ -7,7 +7,7 @@ def update_property_values(values):
     for v in values:
         v.update()
 
-@unittest(logger)
+@unittest
 def unittest_properties_equals():
     query_str = 'x=3'
 
@@ -34,7 +34,7 @@ def unittest_properties_equals():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_not_equals():
     query_str = 'x != 3'
 
@@ -59,7 +59,7 @@ def unittest_properties_not_equals():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_less_than():
     query_str = 'x < 3'
 
@@ -79,7 +79,7 @@ def unittest_properties_less_than():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_less_than_or_equal():
     query_str = 'x <= 3'
 
@@ -99,7 +99,7 @@ def unittest_properties_less_than_or_equal():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_greater_than():
     query_str = 'x > 3'
 
@@ -119,7 +119,7 @@ def unittest_properties_greater_than():
     run_unittest_and_verify_results(query_str, values, expected_results)
     
 
-@unittest(logger)
+@unittest
 def unittest_properties_greater_than_or_equal():
     query_str = 'x >= 3'
 
@@ -139,7 +139,7 @@ def unittest_properties_greater_than_or_equal():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_like():
     query_str = 'name like Mike'
 
@@ -159,7 +159,7 @@ def unittest_properties_like():
     run_unittest_and_verify_results(query_str, values, expected_results)
 
 
-@unittest(logger)
+@unittest
 def unittest_properties_any():
     query_str = 'name'
 

@@ -1,9 +1,4 @@
 # query.py
-
-if __debug__:
-    import logging
-    logger = logging.getLogger(__name__)
-
 from .decorators import validate_query
 from .exceptions import InvalidQueryError
 from .lexer import compile
@@ -19,8 +14,6 @@ class Query(object):
     '''
     def __init__(self, query_str):
         query_str = query_str.strip()
-        if __debug__:
-            self.query_str = query_str
 
         self.__condition = None
 
@@ -81,6 +74,7 @@ class Query(object):
     def __str__(self):
         '''Returns a string representing the compiled query.'''
         return f'QUERY: {self.__condition}'
+    __repr__ = __str__
 
 
 class HashableWrapperObject:
@@ -99,19 +93,21 @@ class HashableWrapperObject:
 
 @validate_query
 def search(search_str, values, dry_run=False):
-    '''Searches a collection of, potentially, unlike python objects based on the search string
+    '''Searches a collection of, potentially, unlike python objects based on 
+    the search string
 
     Parameters:
-        search_str - the query string using the search grammar
-        values - a collection of objects to search
-        dry_run - a bool indicating whether to compile the query only, but not
-            execute it.  If True, the query will be return in string form.
-            This is helpful to validate the search is being compiled correctly.
+    search_str - the query string using the search grammar
+    values - a collection of objects to search
+    dry_run - a bool indicating whether to compile the query only, but not
+        execute it.  If True, the query will be return in string form.
+        This is helpful to validate the search is being compiled correctly.
 
     Returns - a subset, as a list, of objects from value that match the search
     '''
     assert isinstance(search_str, str), \
         f'search_str must be of type string: actual {type(search_str)}'
+
     query = Query(search_str)
 
     if dry_run:

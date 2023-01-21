@@ -167,7 +167,8 @@ class TestExecutor:
 
                 # reset logging_level to debug
                 level_str = 'debug'
-
+            else:
+                show_stack_values(enable=False)
             level = getattr(logging, level_str.upper())
 
             logger = logging.getLogger()

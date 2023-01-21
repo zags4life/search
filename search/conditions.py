@@ -22,10 +22,13 @@ class Condition(with_metaclass(ABCMeta, object)):
     @abstractmethod
     def __call__(self, values):
         pass
-        
+
     @abstractmethod
     def __str__(self):
         pass
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}: "{self}"'
 
 
 #################################################
@@ -51,15 +54,15 @@ class NotStatement(Condition):
 
 
 class BooleanStatement(Condition):
-    '''A boolean statement, base class, designed to be subclassed.  
+    '''A boolean statement, base class, designed to be subclassed.
     A BooleanStatement takes two Condition's and performs a boolean operation
     on the two resulting sets.
     '''
     def __init__(self, c1, c2):
         super(BooleanStatement, self).__init__()
-        
+
         assert isinstance(c1, Condition) and isinstance(c2, Condition)
-        
+
         self.condition1 = c1
         self.condition2 = c2
 
@@ -130,25 +133,25 @@ class Expression(Condition):
         return f'({self.field.name} {self.__class__.EXPRESSION_NAME} ' \
             f'{self.field.value})'
 
-    def __repr__(self):
-        return f'{self.__class__.__name__}: "{self}"'
-
 
 class AnyExpression(Expression):
     '''Any expression allows for finding objects whose fields are a name
     match only.
     '''
     EXPRESSION_NAME = 'ANY'
+    EXPRESSION = lambda *args: True
 
     def __init__(self, name):
+        self.__org_name = name
+
         # Ensure name is in the format '^name$'
         name = name if name.startswith('^') else '^' + name
         name = name if name.endswith('$') else name + '$'
+
         super(AnyExpression, self).__init__(name, '.*')
 
-    def operator_any(*args):
-        return True
-    EXPRESSION = operator_any
+    def __str__(self):
+        return f'({self.__class__.EXPRESSION_NAME} {self.__org_name})'
 
 
 class EqualExpression(Expression):
