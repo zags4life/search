@@ -1,7 +1,7 @@
 # compile_perf_tests.py
 import timeit
 
-from .. import test
+from .. import logger, test
 
 ITERATIONS = 10000
 PADDING = len('time per iteration')
